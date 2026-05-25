@@ -1,55 +1,91 @@
 import { describe, it, expect } from 'vitest';
 import { createMockToolState } from '@itsjust/core/testing';
-import { notepadTool } from '@/tool/tool-definition';
-import type { NotepadState } from '@/tool/types';
+import { converterTool } from '@/tool/tool-definition';
+import type { ConverterState } from '@/tool/types';
 
-describe('Notepad logic', () => {
+function defaultState(): ConverterState {
+  return {
+    inputFormat: 'yaml',
+    outputFormat: 'json',
+    input: '',
+    output: '',
+    error: '',
+    minify: false,
+    indentSize: 2,
+    sortKeys: false,
+    yamlToJsonTabs: false,
+  };
+}
+
+describe('Converter logic', () => {
   it('initializes with default state', () => {
-    const state = createMockToolState<NotepadState>({
-      text: '',
-    });
+    const state = createMockToolState<ConverterState>(defaultState());
 
-    expect(state.data.text).toBe('');
+    expect(state.data.inputFormat).toBe('yaml');
+    expect(state.data.outputFormat).toBe('json');
+    expect(state.data.input).toBe('');
   });
 
-  it('updates text', () => {
-    const state = createMockToolState<NotepadState>({
-      text: '',
-    });
+  it('updates input', () => {
+    const state = createMockToolState<ConverterState>(defaultState());
 
-    state.setData((prev) => ({ ...prev, text: 'Hello world' }));
-    expect(state.data.text).toBe('Hello world');
+    state.setData((prev) => ({ ...prev, input: 'key: val' }));
+    expect(state.data.input).toBe('key: val');
+  });
+
+  it('swaps input and output formats', () => {
+    const state = createMockToolState<ConverterState>(defaultState());
+
+    state.setData((prev) => ({
+      ...prev,
+      outputFormat: prev.inputFormat as 'yaml' | 'json',
+      inputFormat: prev.outputFormat as 'yaml' | 'json',
+    }));
+    expect(state.data.inputFormat).toBe('json');
+    expect(state.data.outputFormat).toBe('yaml');
   });
 
   it('supports undo/redo', () => {
-    const state = createMockToolState<NotepadState>({
-      text: 'First',
-    });
+    const state = createMockToolState<ConverterState>(defaultState());
 
-    state.setData((prev) => ({ ...prev, text: 'Second' }));
-    expect(state.data.text).toBe('Second');
+    state.setData((prev) => ({ ...prev, input: 'name: test' }));
+    expect(state.data.input).toBe('name: test');
     expect(state.canUndo).toBe(true);
 
+    state.setData((prev) => ({ ...prev, minify: true }));
+    expect(state.data.minify).toBe(true);
+
     state.undo();
-    expect(state.data.text).toBe('First');
+    expect(state.data.minify).toBe(false);
     expect(state.canRedo).toBe(true);
 
     state.redo();
-    expect(state.data.text).toBe('Second');
+    expect(state.data.minify).toBe(true);
   });
 });
 
-describe('Notepad deserialize', () => {
-  it('accepts valid notepad state object', () => {
-    const result = notepadTool.deserialize({ text: 'Valid' });
+describe('ConverterTool deserialize', () => {
+  it('accepts valid converter state object', () => {
+    const result = converterTool.deserialize({
+      inputFormat: 'yaml',
+      outputFormat: 'json',
+      input: 'key: val',
+      output: '{"key": "val"}',
+      error: '',
+      minify: false,
+      indentSize: 2,
+      sortKeys: false,
+      yamlToJsonTabs: false,
+    });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.text).toBe('Valid');
+      expect(result.data.input).toBe('key: val');
+      expect(result.data.inputFormat).toBe('yaml');
     }
   });
 
   it('rejects null data', () => {
-    const result = notepadTool.deserialize(null);
+    const result = converterTool.deserialize(null);
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error).toContain('Invalid data');
@@ -57,23 +93,23 @@ describe('Notepad deserialize', () => {
   });
 
   it('rejects non-object data', () => {
-    const result = notepadTool.deserialize('string');
+    const result = converterTool.deserialize('string');
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error).toContain('Invalid data');
     }
   });
 
-  it('rejects object without text', () => {
-    const result = notepadTool.deserialize({ count: 42 });
+  it('rejects object without required fields', () => {
+    const result = converterTool.deserialize({ count: 42 });
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error).toContain('Invalid data');
     }
   });
 
-  it('rejects object with non-string text', () => {
-    const result = notepadTool.deserialize({ text: 123 });
+  it('rejects object with wrong types', () => {
+    const result = converterTool.deserialize({ inputFormat: 123, outputFormat: 'json', input: '', output: '', error: '', minify: false, indentSize: 2, sortKeys: false, yamlToJsonTabs: false });
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error).toContain('Invalid data');
@@ -81,8 +117,19 @@ describe('Notepad deserialize', () => {
   });
 
   it('serializes state to JSON string', () => {
-    const json = notepadTool.serialize({ text: 'Test' });
+    const state: ConverterState = {
+      inputFormat: 'yaml',
+      outputFormat: 'json',
+      input: 'name: test',
+      output: '',
+      error: '',
+      minify: false,
+      indentSize: 2,
+      sortKeys: false,
+      yamlToJsonTabs: false,
+    };
+    const json = converterTool.serialize(state);
     expect(() => JSON.parse(json)).not.toThrow();
-    expect(JSON.parse(json)).toEqual({ text: 'Test' });
+    expect(JSON.parse(json)).toMatchObject({ input: 'name: test', inputFormat: 'yaml' });
   });
 });

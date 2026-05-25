@@ -38,7 +38,17 @@ vi.mock('@itsjust/core', () => ({
   ),
   useTool: () => ({
     state: {
-      data: { text: 'Hello' },
+      data: { 
+        inputFormat: 'yaml',
+        outputFormat: 'json',
+        input: 'key: val',
+        output: '',
+        error: '',
+        minify: false,
+        indentSize: 2,
+        sortKeys: false,
+        yamlToJsonTabs: false,
+      },
       setData: mockSetData,
       isDirty: false,
       lastSaved: 'just now',
@@ -54,20 +64,20 @@ vi.mock('@itsjust/core', () => ({
 
 vi.mock('@/tool', () => ({
   toolConfig: {
-    id: 'simple-notepad',
-    name: 'Notepad',
+    id: 'config-converter',
+    name: 'Config Converter',
     version: '1.0.0',
     features: { sidebar: true },
-    theme: { brand: 'Notepad' },
+    theme: { brand: 'Config Converter' },
   },
   templateBaseVersion: '1.1.0',
-  notepadTool: {
+  converterTool: {
     serialize: (state: unknown) => JSON.stringify(state),
-    deserialize: () => ({ success: true, data: { text: 'From Shared Url' } }),
+    deserialize: () => ({ success: true, data: { input: 'From Shared Url', inputFormat: 'yaml', outputFormat: 'json', output: '', error: '', minify: false, indentSize: 2, sortKeys: false, yamlToJsonTabs: false } }),
   },
-  ToolCanvas: ({ text }: { text: string }) => <div>canvas:{text}</div>,
+  ToolCanvas: ({ state }: { state: { input: string } }) => <div>canvas:{state.input}</div>,
   ToolToolbar: () => <div>toolbar</div>,
-  ToolSidebar: ({ text }: { text: string }) => <div>sidebar:{text}</div>,
+  ToolSidebar: ({ state }: { state: { input: string } }) => <div>sidebar:{state.input}</div>,
 }));
 
 describe('app client and help page', () => {
