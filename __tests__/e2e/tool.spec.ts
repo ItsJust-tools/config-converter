@@ -1,5 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+async function ensureSidebarInputAccessible(page: import('@playwright/test').Page) {
+  // Sidebar (with #converter-input) starts collapsed on mobile.
+  // Open it via the sidebar toggle if the input is not visible.
+  const input = page.locator('#converter-input');
+  if (!(await input.isVisible().catch(() => false))) {
+    await page.locator('.toolbar-btn-sidebar').click().catch(() => {});
+    await expect(input).toBeVisible({ timeout: 3000 });
+  }
+}
+
 async function closeBackdropIfOpen(page: import('@playwright/test').Page) {
   const backdrop = page.locator('.sidebar-backdrop');
   for (let i = 0; i < 3; i++) {
@@ -29,7 +39,8 @@ test('converts YAML to JSON', async ({ page }) => {
   await page.goto('/');
   await ensureToolbarInteractable(page);
 
-  const inputArea = page.locator('textarea').first();
+  await ensureSidebarInputAccessible(page);
+  const inputArea = page.locator('#converter-input');
   await inputArea.fill('name: test\nversion: 1.0\nenabled: true');
 
   const convertButton = page.getByRole('button', { name: /convert/i });
@@ -44,8 +55,8 @@ test('converts JSON to YAML', async ({ page }) => {
   await page.goto('/');
   await ensureToolbarInteractable(page);
 
-  // Switch output to YAML if needed
-  const inputArea = page.locator('textarea').first();
+  await ensureSidebarInputAccessible(page);
+  const inputArea = page.locator('#converter-input');
   await inputArea.fill('{"name": "test", "version": 1.0}');
 
   const convertButton = page.getByRole('button', { name: /convert/i });
@@ -75,7 +86,8 @@ test('undo/redo buttons enable/disable correctly', async ({ page }) => {
   await expect(undoButton).toBeDisabled();
   await expect(redoButton).toBeDisabled();
 
-  const inputArea = page.locator('textarea').first();
+  await ensureSidebarInputAccessible(page);
+  const inputArea = page.locator('#converter-input');
   await inputArea.fill('key: value');
 
   await expect(undoButton).toBeEnabled();
@@ -221,7 +233,8 @@ test('import from json file works', async ({ page }) => {
     buffer: Buffer.from(fileContent),
   });
 
-  const inputArea = page.locator('textarea').first();
+  await ensureSidebarInputAccessible(page);
+  const inputArea = page.locator('#converter-input');
   await expect.poll(() => inputArea.inputValue()).toContain('"key"');
 });
 
@@ -229,8 +242,9 @@ test('export json download triggers', async ({ page }) => {
   await page.goto('/');
   await ensureToolbarInteractable(page);
 
+  await ensureSidebarInputAccessible(page);
   // First convert something to have output
-  const inputArea = page.locator('textarea').first();
+  const inputArea = page.locator('#converter-input');
   await inputArea.fill('key: value');
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
@@ -247,7 +261,8 @@ test('shows error for invalid input', async ({ page }) => {
   await page.goto('/');
   await ensureToolbarInteractable(page);
 
-  const inputArea = page.locator('textarea').first();
+  await ensureSidebarInputAccessible(page);
+  const inputArea = page.locator('#converter-input');
   await inputArea.fill('{invalid json: here}');
 
   const convertButton = page.getByRole('button', { name: /convert/i });
