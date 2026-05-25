@@ -1,6 +1,6 @@
 'use client';
 
-import type { ConverterState, ConversionFormat } from '../types';
+import type { ConverterState } from '../types';
 
 interface ToolToolbarProps {
   state: ConverterState;
@@ -9,12 +9,6 @@ interface ToolToolbarProps {
   onCopyOutput: () => void;
   onClear: () => void;
 }
-
-const FORMATS: { label: string; value: ConversionFormat }[] = [
-  { label: 'YAML', value: 'yaml' },
-  { label: 'JSON', value: 'json' },
-  { label: 'TOML', value: 'toml' },
-];
 
 export function ToolToolbar({
   state,

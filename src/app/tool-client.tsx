@@ -12,7 +12,7 @@ import {
   ToolToolbar,
   ToolSidebar,
 } from '@/tool';
-import type { ConverterState, ConversionFormat } from '@/tool';
+import type { ConversionFormat } from '@/tool';
 
 export default function ToolClient() {
   const canvasRef = useRef<HTMLDivElement>(null);

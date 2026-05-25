@@ -18,7 +18,7 @@ export function convertConfig(
     yamlToJsonTabs?: boolean;
   } = {}
 ): ConversionResult {
-  const { minify = false, indentSize = 2, sortKeys = false, yamlToJsonTabs = false } = options;
+  const { minify = false, indentSize = 2, sortKeys = false } = options;
 
   if (!input.trim()) {
     return { output: '', error: 'Please enter some configuration to convert.' };

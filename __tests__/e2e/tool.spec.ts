@@ -59,14 +59,10 @@ test('swap formats button works', async ({ page }) => {
   await page.goto('/');
   await ensureToolbarInteractable(page);
 
-  // Get current format labels
-  const inputLabel = page.locator('[data-testid="input-format-label"]');
-  const outputLabel = page.locator('[data-testid="output-format-label"]');
-
   // Use Ctrl+Shift+S shortcut for swap
   await page.locator('body').press('Control+Shift+s');
 
-  // Check that output is now previous input format
+  // Check that output is now visible
   await expect(page.locator('[data-testid="output-format-label"]')).toBeVisible();
 });
 
