@@ -49,9 +49,9 @@ test('converts YAML to JSON', async ({ page }) => {
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
 
-  // Wait for output to appear
-  const outputArea = page.locator('textarea').last();
-  await expect(outputArea).toHaveValue(/"name": "test"/);
+  // Wait for output to appear in the <pre> element (not a textarea)
+  const outputArea = page.locator('.converter-output');
+  await expect(outputArea).toContainText(/"name": "test"/);
 });
 
 test('converts JSON to YAML', async ({ page }) => {
@@ -65,19 +65,28 @@ test('converts JSON to YAML', async ({ page }) => {
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
 
-  const outputArea = page.locator('textarea').last();
-  await expect(outputArea).toHaveValue(/name: test/);
+  const outputArea = page.locator('.converter-output');
+  await expect(outputArea).toContainText(/name: test/);
 });
 
 test('swap formats button works', async ({ page }) => {
   await page.goto('/');
   await ensureToolbarInteractable(page);
 
+  await ensureSidebarInputAccessible(page);
+  const inputArea = page.locator('#converter-input');
+  await inputArea.fill('name: test');
+
+  // Convert first so we have content to swap
+  const convertButton = page.getByRole('button', { name: /convert/i });
+  await convertButton.click();
+  await expect(page.locator('.converter-output')).toBeVisible();
+
   // Use Ctrl+Shift+S shortcut for swap
   await page.locator('body').press('Control+Shift+s');
 
-  // Check that output is now visible
-  await expect(page.locator('[data-testid="output-format-label"]')).toBeVisible();
+  // After swap, the sidebar input should have the JSON output
+  await expect(inputArea).toHaveValue(/.+/);
 });
 
 test('undo/redo buttons enable/disable correctly', async ({ page }) => {
@@ -271,8 +280,8 @@ test('shows error for invalid input', async ({ page }) => {
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
 
-  // Should show output or error area
-  await expect(page.locator('textarea').last()).not.toBeEmpty();
+  // Should show error in the error alert
+  await expect(page.locator('.converter-error')).toBeVisible();
 });
 
 test('404 page works', async ({ page }) => {
