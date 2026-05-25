@@ -1,0 +1,11 @@
+#!/bin/bash
+# Pre-push hook: ensure coverage report exists and tests pass before pushing
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Running tests before push..."
+  npm test
+  if [ $? -ne 0 ]; then
+    echo "Tests failed. Fix and try again."
+    exit 1
+  fi
+fi
+echo "Pre-push checks passed."

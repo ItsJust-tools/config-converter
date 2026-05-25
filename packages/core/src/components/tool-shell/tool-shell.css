@@ -1,0 +1,141 @@
+.tool-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--background);
+  color: var(--foreground);
+  --z-toolbar: 10;
+  --z-sidebar: 40;
+  --z-backdrop: 35;
+  --z-overlay: 100;
+}
+
+.tool-shell ::selection {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+/* Visually hidden until focused */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  z-index: var(--z-overlay);
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 0 0 var(--radius) 0;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Shared animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Body */
+.tool-shell-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Ad Slot */
+.ad-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--muted-bg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  opacity: 0.5;
+}
+
+/* --- Mobile --- */
+@media (max-width: 48rem) {
+  .tool-shell-statusbar {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6875rem;
+    padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* --- Reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Print --- */
+@media print {
+  .tool-shell-toolbar,
+  .tool-shell-sidebar,
+  .tool-shell-statusbar,
+  .ad-slot,
+  .readonly-banner,
+  .toast-container,
+  .sidebar-backdrop,
+  .shortcuts-overlay,
+  .command-palette-overlay {
+    display: none !important;
+  }
+
+  .tool-shell-canvas {
+    overflow: visible !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  .tool-canvas {
+    max-width: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .tool-shell {
+    height: auto;
+    width: 100%;
+  }
+
+  .tool-shell-body {
+    display: block;
+  }
+}

@@ -1,0 +1,90 @@
+/* Loading Skeleton */
+
+.toolbar-skeleton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  height: 48px;
+  background: var(--toolbar-bg);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.toolbar-skeleton::before,
+.toolbar-skeleton::after {
+  content: '';
+  height: 28px;
+  border-radius: var(--radius);
+  background: var(--muted-bg);
+}
+
+.toolbar-skeleton::before {
+  width: 120px;
+}
+.toolbar-skeleton::after {
+  width: 160px;
+}
+
+.canvas-skeleton {
+  flex: 1;
+  background: var(--background);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-pulse {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(128, 128, 128, 0.06) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+[data-theme='dark'] .skeleton-pulse {
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.statusbar-skeleton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  height: 36px;
+  background: var(--toolbar-bg);
+  box-shadow: 0 -1px 0 var(--border);
+}
+
+.statusbar-skeleton::before,
+.statusbar-skeleton::after {
+  content: '';
+  height: 12px;
+  border-radius: 3px;
+  background: var(--muted-bg);
+}
+
+.statusbar-skeleton::before {
+  width: 80px;
+}
+.statusbar-skeleton::after {
+  width: 60px;
+}

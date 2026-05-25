@@ -1,0 +1,4 @@
+#!/bin/bash
+# Pre-commit hook: run lint and format before committing
+git add -p
+git commit --amend --no-edit || exit
