@@ -1,0 +1,13 @@
+# Ignore CI-related commits
+^refs/remotes/origin/master$
+^refs/remotes/origin/main$
+^CI$
+^Merge branch 'CI'
+# Ignore automated updates
+^Dependabot
+^Pre-commit
+^chore\(deps\)
+^docs\(CI\)
+# Ignore generated files
+^out/
+^\.next/

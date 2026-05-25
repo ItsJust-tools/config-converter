@@ -1,0 +1,40 @@
+{
+  "name": "@itsjust/core",
+  "version": "1.2.0",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./testing": {
+      "import": "./dist/testing.js",
+      "require": "./dist/testing.cjs",
+      "types": "./dist/testing.d.ts"
+    },
+    "./styles.css": "./src/index.css"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "next": "^16.2.4",
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "lucide-react": "^1.16.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "react": "^19",
+    "tsup": "^8",
+    "typescript": "^5"
+  }
+}

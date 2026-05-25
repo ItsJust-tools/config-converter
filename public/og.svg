@@ -1,0 +1,8 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#111827"/>
+  <rect x="60" y="60" width="1080" height="510" rx="24" fill="#1f2937" stroke="#374151" stroke-width="2"/>
+  <text x="600" y="260" font-family="system-ui, -apple-system, sans-serif" font-size="72" fill="#f9fafb" text-anchor="middle" font-weight="bold">itsjust.tools</text>
+  <text x="600" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#9ca3af" text-anchor="middle">Single-purpose web tools that do one thing well</text>
+  <rect x="480" y="400" width="240" height="52" rx="26" fill="#3b82f6"/>
+  <text x="600" y="433" font-family="system-ui, -apple-system, sans-serif" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="600">Try it free</text>
+</svg>

@@ -1,0 +1,76 @@
+{
+  "name": "config-converter",
+  "version": "1.4.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "npm run build -w @itsjust/core && next build",
+    "start": "next start",
+    "lint": "mkdir -p test-results && eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:dev": "playwright test --ui",
+    "test:ui": "vitest --ui",
+    "prepare": "husky install || true",
+    "deps:check": "depcheck",
+    "lint-staged": "lint-staged"
+  },
+  "dependencies": {
+    "@itsjust/core": "*",
+    "html-to-image": "^1.11.13",
+    "js-yaml": "^4.1.0",
+    "lz-string": "^1.5.0",
+    "smol-toml": "^1.3.1",
+    "next": "^16.2.4",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0",
+    "yarn": ">=1.22.0"
+  },
+  "overrides": {
+    "postcss": ">=8.5.10"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,md,css,mdx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^25",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/js-yaml": "^4.0.9",
+    "@vitejs/plugin-react": "^5.2.0",
+    "@vitest/coverage-v8": "^4.1.6",
+    "depcheck": "^1.4.7",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.6",
+    "husky": "^9.1.7",
+    "jsdom": "^29.1.1",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.4.0",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4",
+    "tsup": "^8.5.1",
+    "typescript": "^5",
+    "vitest": "^4.1.5"
+  },
+  "optionalDependencies": {
+    "@emnapi/runtime": "^1.10.0"
+  }
+}
