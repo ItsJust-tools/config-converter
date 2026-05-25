@@ -12,11 +12,10 @@ import { cn } from '@/lib/utils';
 import { generateJsonLd, generateToolMetadata } from '@/lib/seo';
 import toolConfig from '@/tool/tool.config';
 import { getPublicSiteUrl, templateMetadata } from '@/tool/template-metadata';
-import { notepadTool } from '@/tool/tool-definition';
+import { converterTool } from '@/tool/tool-definition';
 import { ToolCanvas } from '@/tool/components/tool-canvas';
 import { ToolSidebar } from '@/tool/components/tool-sidebar';
 import { ToolToolbar } from '@/tool/components/tool-toolbar';
-import type { ExporterLoader } from '@itsjust/core';
 
 vi.mock('next/link', () => ({
   default: ({ href, children, ...props }: { href: string; children: ReactNode }) => (
@@ -47,10 +46,10 @@ describe('app and seo', () => {
     const jsonLd = generateJsonLd(toolConfig);
 
     expect(metadata.creator).toBe(toolConfig.name);
-    expect(metadata.metadataBase?.toString()).toBe('http://localhost:3000/');
+    expect(metadata.metadataBase?.toString()).toBe('https://localhost/tools/config-converter');
     const ogUrl = metadata.openGraph?.images ? getOgImageUrl(metadata.openGraph.images) : undefined;
     expect(ogUrl).toContain('/og.svg');
-    expect(jsonLd.url).toBe('http://localhost:3000');
+    expect(jsonLd.url).toBe('https://localhost/tools/config-converter');
     expect(jsonLd.featureList.length).toBeGreaterThan(0);
   });
 
@@ -60,8 +59,8 @@ describe('app and seo', () => {
     const sm = sitemap();
 
     expect(man.name).toBe(templateMetadata.appName);
-    expect(rob.sitemap).toBe('http://localhost:3000/sitemap.xml');
-    expect(sm[0]?.url).toBe('http://localhost:3000');
+    expect(rob.sitemap).toBe('https://localhost/tools/config-converter/sitemap.xml');
+    expect(sm[0]?.url).toBe('https://localhost/tools/config-converter');
   });
 
   it('renders json-ld script safely', () => {
@@ -91,41 +90,76 @@ describe('app and seo', () => {
 
   it('covers tool definition and helper exports', async () => {
     expect(cn('a', undefined, 'b', false, null, 'c')).toBe('a b c');
-    expect(getPublicSiteUrl()).toBe('http://localhost:3000');
-    expect(notepadTool.deserialize({ text: 'x' })).toEqual({
+    expect(getPublicSiteUrl()).toBe('https://localhost/tools/config-converter');
+    expect(converterTool.deserialize({
+      inputFormat: 'yaml',
+      outputFormat: 'json',
+      input: 'key: val',
+      output: '',
+      error: '',
+      minify: false,
+      indentSize: 2,
+      sortKeys: false,
+      yamlToJsonTabs: false,
+    })).toEqual({
       success: true,
-      data: { text: 'x' },
+      data: {
+        inputFormat: 'yaml',
+        outputFormat: 'json',
+        input: 'key: val',
+        output: '',
+        error: '',
+        minify: false,
+        indentSize: 2,
+        sortKeys: false,
+        yamlToJsonTabs: false,
+      },
     });
-    expect(notepadTool.deserialize({ nope: true })).toEqual({
+    expect(converterTool.deserialize({ nope: true })).toEqual({
       success: false,
-      error: 'Invalid data format: expected { text: string, title?: string }',
+      error: 'Invalid data format: expected ConverterState object',
     });
-    expect(notepadTool.serialize({ text: 'x' })).toContain('"text": "x"');
-    expect(notepadTool.deserialize({ text: 'x', title: 'My Note' })).toEqual({
-      success: true,
-      data: { text: 'x', title: 'My Note' },
-    });
-    const exporters = notepadTool.exporters ?? [];
-    expect(exporters).toHaveLength(4);
-    const first = exporters[0];
-    expect(first).toBeDefined();
-    if (!first) throw new Error('missing exporter');
-    const png = await (first.loader as ExporterLoader)();
-    const resolved = 'default' in png ? png.default : png.exporter;
-    expect(resolved.format).toBe('png');
+    expect(converterTool.serialize(converterTool.initialState)).toContain('"inputFormat": "yaml"');
   });
 
   it('renders tool components', () => {
+    const state = {
+      inputFormat: 'yaml' as const,
+      outputFormat: 'json' as const,
+      input: 'key: value',
+      output: '',
+      error: '',
+      minify: false,
+      indentSize: 2,
+      sortKeys: false,
+      yamlToJsonTabs: false,
+    };
+
     render(
       <>
-        <ToolToolbar />
-        <ToolSidebar text="Hello world" fontSize={16} onFontSizeChange={() => {}} />
-        <ToolCanvas text="" fontSize={16} />
+        <ToolToolbar
+          state={state}
+          onConvert={() => {}}
+          onSwapFormats={() => {}}
+          onCopyOutput={() => {}}
+          onClear={() => {}}
+        />
+        <ToolSidebar
+          state={state}
+          onInputFormatChange={() => {}}
+          onOutputFormatChange={() => {}}
+          onInputChange={() => {}}
+          onMinifyToggle={() => {}}
+          onIndentSizeChange={() => {}}
+          onSortKeysToggle={() => {}}
+        />
+        <ToolCanvas state={state} />
       </>
     );
 
-    expect(screen.getByRole('link', { name: 'Open help page' })).toBeInTheDocument();
-    expect(screen.getByText('11')).toBeInTheDocument(); // char count for "Hello world"
-    expect(screen.getByRole('application', { name: 'Notepad canvas' })).toBeInTheDocument();
+    expect(screen.getAllByText('YAML').length).toBe(2);
+    expect(screen.getAllByText('JSON').length).toBe(2);
+    expect(screen.getByText('Convert')).toBeInTheDocument();
+    expect(screen.getByRole('application', { name: 'Config Converter' })).toBeInTheDocument();
   });
 });
