@@ -11,7 +11,12 @@ export function convertConfig(
   input: string,
   inputFormat: ConversionFormat,
   outputFormat: ConversionFormat,
-  options: { minify?: boolean; indentSize?: number; sortKeys?: boolean; yamlToJsonTabs?: boolean } = {}
+  options: {
+    minify?: boolean;
+    indentSize?: number;
+    sortKeys?: boolean;
+    yamlToJsonTabs?: boolean;
+  } = {}
 ): ConversionResult {
   const { minify = false, indentSize = 2, sortKeys = false, yamlToJsonTabs = false } = options;
 

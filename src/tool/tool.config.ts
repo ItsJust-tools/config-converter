@@ -30,8 +30,16 @@ const toolConfig = {
       title: 'Config Converter',
       shortcuts: [
         { keys: 'Ctrl+Enter', label: 'Convert', description: 'run the conversion' },
-        { keys: 'Ctrl+Shift+S', label: 'Swap Formats', description: 'swap input and output formats' },
-        { keys: 'Ctrl+Shift+C', label: 'Copy Output', description: 'copy converted result to clipboard' },
+        {
+          keys: 'Ctrl+Shift+S',
+          label: 'Swap Formats',
+          description: 'swap input and output formats',
+        },
+        {
+          keys: 'Ctrl+Shift+C',
+          label: 'Copy Output',
+          description: 'copy converted result to clipboard',
+        },
       ],
     },
   ],

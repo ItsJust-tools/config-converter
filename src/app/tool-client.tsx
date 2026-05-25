@@ -202,12 +202,7 @@ export default function ToolClient() {
     />
   );
 
-  const canvasContent = (
-    <ToolCanvas
-      canvasRef={canvasRef}
-      state={tool.state.data}
-    />
-  );
+  const canvasContent = <ToolCanvas canvasRef={canvasRef} state={tool.state.data} />;
 
   const statusBarContent = (
     <>

@@ -91,17 +91,19 @@ describe('app and seo', () => {
   it('covers tool definition and helper exports', async () => {
     expect(cn('a', undefined, 'b', false, null, 'c')).toBe('a b c');
     expect(getPublicSiteUrl()).toBe('https://localhost/tools/config-converter');
-    expect(converterTool.deserialize({
-      inputFormat: 'yaml',
-      outputFormat: 'json',
-      input: 'key: val',
-      output: '',
-      error: '',
-      minify: false,
-      indentSize: 2,
-      sortKeys: false,
-      yamlToJsonTabs: false,
-    })).toEqual({
+    expect(
+      converterTool.deserialize({
+        inputFormat: 'yaml',
+        outputFormat: 'json',
+        input: 'key: val',
+        output: '',
+        error: '',
+        minify: false,
+        indentSize: 2,
+        sortKeys: false,
+        yamlToJsonTabs: false,
+      })
+    ).toEqual({
       success: true,
       data: {
         inputFormat: 'yaml',

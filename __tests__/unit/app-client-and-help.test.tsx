@@ -38,7 +38,7 @@ vi.mock('@itsjust/core', () => ({
   ),
   useTool: () => ({
     state: {
-      data: { 
+      data: {
         inputFormat: 'yaml',
         outputFormat: 'json',
         input: 'key: val',
@@ -73,7 +73,20 @@ vi.mock('@/tool', () => ({
   templateBaseVersion: '1.1.0',
   converterTool: {
     serialize: (state: unknown) => JSON.stringify(state),
-    deserialize: () => ({ success: true, data: { input: 'From Shared Url', inputFormat: 'yaml', outputFormat: 'json', output: '', error: '', minify: false, indentSize: 2, sortKeys: false, yamlToJsonTabs: false } }),
+    deserialize: () => ({
+      success: true,
+      data: {
+        input: 'From Shared Url',
+        inputFormat: 'yaml',
+        outputFormat: 'json',
+        output: '',
+        error: '',
+        minify: false,
+        indentSize: 2,
+        sortKeys: false,
+        yamlToJsonTabs: false,
+      },
+    }),
   },
   ToolCanvas: ({ state }: { state: { input: string } }) => <div>canvas:{state.input}</div>,
   ToolToolbar: () => <div>toolbar</div>,

@@ -226,9 +226,7 @@ test('import from json file works', async ({ page }) => {
   });
 
   const inputArea = page.locator('textarea').first();
-  await expect
-    .poll(() => inputArea.inputValue())
-    .toContain('"key"');
+  await expect.poll(() => inputArea.inputValue()).toContain('"key"');
 });
 
 test('export json download triggers', async ({ page }) => {

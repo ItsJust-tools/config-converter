@@ -109,7 +109,17 @@ describe('ConverterTool deserialize', () => {
   });
 
   it('rejects object with wrong types', () => {
-    const result = converterTool.deserialize({ inputFormat: 123, outputFormat: 'json', input: '', output: '', error: '', minify: false, indentSize: 2, sortKeys: false, yamlToJsonTabs: false });
+    const result = converterTool.deserialize({
+      inputFormat: 123,
+      outputFormat: 'json',
+      input: '',
+      output: '',
+      error: '',
+      minify: false,
+      indentSize: 2,
+      sortKeys: false,
+      yamlToJsonTabs: false,
+    });
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error).toContain('Invalid data');

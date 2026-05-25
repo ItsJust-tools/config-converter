@@ -16,7 +16,13 @@ const FORMATS: { label: string; value: ConversionFormat }[] = [
   { label: 'TOML', value: 'toml' },
 ];
 
-export function ToolToolbar({ state, onConvert, onSwapFormats, onCopyOutput, onClear }: ToolToolbarProps) {
+export function ToolToolbar({
+  state,
+  onConvert,
+  onSwapFormats,
+  onCopyOutput,
+  onClear,
+}: ToolToolbarProps) {
   return (
     <div className="converter-toolbar">
       <div className="converter-toolbar-row">

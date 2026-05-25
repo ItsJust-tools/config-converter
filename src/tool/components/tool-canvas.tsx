@@ -11,7 +11,12 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
   const outputLength = state.output.length;
 
   return (
-    <div ref={canvasRef} className="converter-canvas" role="application" aria-label="Config Converter">
+    <div
+      ref={canvasRef}
+      className="converter-canvas"
+      role="application"
+      aria-label="Config Converter"
+    >
       {state.error && (
         <div className="converter-error" role="alert">
           <span className="converter-error-icon">⚠️</span>
@@ -23,9 +28,7 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
       <div className="converter-pane">
         <div className="converter-pane-header">
           <span className="converter-pane-label">Input ({state.inputFormat.toUpperCase()})</span>
-          <span className="converter-pane-stats">
-            {state.input.length.toLocaleString()} chars
-          </span>
+          <span className="converter-pane-stats">{state.input.length.toLocaleString()} chars</span>
         </div>
         <textarea
           className="converter-textarea converter-textarea-input"
@@ -44,9 +47,7 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
           <span className="converter-pane-label">Output ({state.outputFormat.toUpperCase()})</span>
           <div className="converter-pane-actions">
             {outputLength > 0 && (
-              <span className="converter-pane-stats">
-                {outputLength.toLocaleString()} chars
-              </span>
+              <span className="converter-pane-stats">{outputLength.toLocaleString()} chars</span>
             )}
           </div>
         </div>

@@ -20,11 +20,11 @@ Convert between **YAML**, **JSON**, and **TOML** formats instantly. All client-s
 
 ## Supported Formats
 
-| Format | Parsing | Serialization |
-|--------|---------|--------------|
-| YAML   | ✅ js-yaml | ✅ js-yaml |
-| JSON   | ✅ native | ✅ native |
-| TOML   | ✅ smol-toml | ✅ smol-toml |
+| Format | Parsing      | Serialization |
+| ------ | ------------ | ------------- |
+| YAML   | ✅ js-yaml   | ✅ js-yaml    |
+| JSON   | ✅ native    | ✅ native     |
+| TOML   | ✅ smol-toml | ✅ smol-toml  |
 
 ## Development
 
