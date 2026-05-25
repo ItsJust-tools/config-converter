@@ -5,7 +5,10 @@ async function ensureSidebarInputAccessible(page: import('@playwright/test').Pag
   // Open it via the sidebar toggle if the input is not visible.
   const input = page.locator('#converter-input');
   if (!(await input.isVisible().catch(() => false))) {
-    await page.locator('.toolbar-btn-sidebar').click().catch(() => {});
+    await page
+      .locator('.toolbar-btn-sidebar')
+      .click()
+      .catch(() => {});
     await expect(input).toBeVisible({ timeout: 3000 });
   }
 }
