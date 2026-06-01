@@ -2,6 +2,21 @@
   "name": "config-converter",
   "version": "1.4.0",
   "private": true,
+  "description": "Convert between YAML, JSON, and TOML formats instantly. All client-side, privacy-first.",
+  "keywords": [
+    "yaml",
+    "json",
+    "toml",
+    "converter",
+    "config",
+    "configuration",
+    "developer-tools"
+  ],
+  "homepage": "https://itsjust.tools/config-converter",
+  "bugs": {
+    "url": "https://github.com/itsjust-tools/config-converter/issues"
+  },
+  "license": "MIT",
   "workspaces": [
     "packages/*"
   ],

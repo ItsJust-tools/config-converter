@@ -39,12 +39,39 @@ export const converterTool: Tool<ConverterState> = {
     if (isConverterState(data)) {
       return { success: true, data };
     }
+    // If the imported data is a plain JSON object/array (not a full ConverterState),
+    // treat it as input content - set it as the converter input.
+    if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+      const input = JSON.stringify(data, null, 2);
+      return {
+        success: true,
+        data: {
+          ...converterTool.initialState,
+          input,
+        },
+      };
+    }
+    // Also support importing raw JSON strings or arrays
+    if (typeof data === 'string') {
+      return {
+        success: true,
+        data: {
+          ...converterTool.initialState,
+          input: data,
+        },
+      };
+    }
     return {
       success: false,
-      error: 'Invalid data format: expected ConverterState object',
+      error: 'Invalid data format: expected ConverterState or JSON content',
     };
   },
-  exporters: [],
+  exporters: [
+    {
+      format: 'pdf',
+      loader: () => import('./exporters/pdf'),
+    },
+  ],
 };
 
 // Re-export converter for convenience

@@ -1,5 +1,9 @@
 # Config Converter
 
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![npm version](https://img.shields.io/badge/version-1.4.0-blue)]()
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/itsjust-tools/config-converter/issues)
+
 Convert between **YAML**, **JSON**, and **TOML** formats instantly. All client-side, privacy-first.
 
 ## Features

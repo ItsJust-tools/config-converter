@@ -1,35 +1,51 @@
 import { test, expect } from '@playwright/test';
 
-async function ensureSidebarInputAccessible(page: import('@playwright/test').Page) {
-  // Sidebar (with #converter-input) starts collapsed on mobile.
-  // Open it via the sidebar toggle if the input is not visible.
-  const input = page.locator('#converter-input');
-  if (!(await input.isVisible().catch(() => false))) {
-    await page
-      .locator('.toolbar-btn-sidebar')
-      .click()
-      .catch(() => {});
-    await expect(input).toBeVisible({ timeout: 3000 });
+async function getSidebarState(page: import('@playwright/test').Page) {
+  return page.evaluate(() => {
+    const el = document.querySelector('.tool-shell-sidebar');
+    if (!el) return 'loading';
+    return el.classList.contains('open') ? 'open' : 'collapsed';
+  });
+}
+
+async function openSidebar(page: import('@playwright/test').Page) {
+  // Wait for sidebar to exist in DOM
+  await page.waitForSelector('.tool-shell-sidebar', { timeout: 5000 });
+  const state = await getSidebarState(page);
+  if (state === 'open') return;
+  // The collapsed sidebar has inert=true, making its children non-interactable.
+  // Open it via the toggle button instead of trying to interact with inert children.
+  await page.locator('.toolbar-btn-sidebar').click();
+  await expect(page.locator('.tool-shell-sidebar')).toHaveClass(/open/, { timeout: 3000 });
+}
+
+async function closeSidebarIfNeeded(page: import('@playwright/test').Page) {
+  // On mobile, the open sidebar overlays the toolbar with a backdrop.
+  // Close it so toolbar buttons become interactable.
+  const state = await getSidebarState(page);
+  if (state !== 'open') return;
+  const backdrop = page.locator('.sidebar-backdrop');
+  if (await backdrop.isVisible().catch(() => false)) {
+    // Click the backdrop at the top-center of the viewport (above the sidebar panel)
+    // to avoid hitting the sidebar panel which has a higher z-index.
+    const viewport = page.viewportSize();
+    const y = (viewport?.height ?? 600) * 0.1;
+    const x = (viewport?.width ?? 400) / 2;
+    await page.mouse.click(x, y);
+    await expect(page.locator('.tool-shell-sidebar')).toHaveClass(/collapsed/, { timeout: 3000 });
   }
 }
 
-async function closeBackdropIfOpen(page: import('@playwright/test').Page) {
-  const backdrop = page.locator('.sidebar-backdrop');
-  for (let i = 0; i < 3; i++) {
-    const visible = await backdrop.isVisible().catch(() => false);
-    if (!visible) return;
-    await backdrop.evaluate((el) => (el as HTMLElement).click());
-    await page.waitForTimeout(100);
-  }
+async function ensureSidebarInputAccessible(page: import('@playwright/test').Page) {
+  // Open the sidebar if it's collapsed so the #converter-input is interactable.
+  await openSidebar(page);
+  const input = page.locator('#converter-input');
+  await expect(input).toBeVisible({ timeout: 3000 });
 }
 
 async function ensureToolbarInteractable(page: import('@playwright/test').Page) {
-  await closeBackdropIfOpen(page);
-  const backdrop = page.locator('.sidebar-backdrop');
-  if (await backdrop.isVisible().catch(() => false)) {
-    await page.keyboard.press('Control+b');
-    await expect(backdrop).toBeHidden();
-  }
+  // Ensure no sidebar backdrop is intercepting toolbar clicks
+  await closeSidebarIfNeeded(page);
 }
 
 test('tool loads with correct title', async ({ page }) => {
@@ -40,11 +56,13 @@ test('tool loads with correct title', async ({ page }) => {
 
 test('converts YAML to JSON', async ({ page }) => {
   await page.goto('/');
-  await ensureToolbarInteractable(page);
 
   await ensureSidebarInputAccessible(page);
   const inputArea = page.locator('#converter-input');
   await inputArea.fill('name: test\nversion: 1.0\nenabled: true');
+
+  // Close sidebar on mobile so toolbar buttons are not behind the backdrop
+  await ensureToolbarInteractable(page);
 
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
@@ -56,11 +74,18 @@ test('converts YAML to JSON', async ({ page }) => {
 
 test('converts JSON to YAML', async ({ page }) => {
   await page.goto('/');
-  await ensureToolbarInteractable(page);
 
   await ensureSidebarInputAccessible(page);
+
+  // Switch output format to YAML (default is JSON)
+  await page.getByRole('radio', { name: 'YAML' }).last().click();
+  await page.waitForTimeout(100);
+
   const inputArea = page.locator('#converter-input');
   await inputArea.fill('{"name": "test", "version": 1.0}');
+
+  // Close sidebar on mobile so toolbar buttons are not behind the backdrop
+  await ensureToolbarInteractable(page);
 
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
@@ -71,11 +96,13 @@ test('converts JSON to YAML', async ({ page }) => {
 
 test('swap formats button works', async ({ page }) => {
   await page.goto('/');
-  await ensureToolbarInteractable(page);
 
   await ensureSidebarInputAccessible(page);
   const inputArea = page.locator('#converter-input');
   await inputArea.fill('name: test');
+
+  // Close sidebar on mobile so toolbar buttons are not behind the backdrop
+  await ensureToolbarInteractable(page);
 
   // Convert first so we have content to swap
   const convertButton = page.getByRole('button', { name: /convert/i });
@@ -101,6 +128,9 @@ test('undo/redo buttons enable/disable correctly', async ({ page }) => {
   await ensureSidebarInputAccessible(page);
   const inputArea = page.locator('#converter-input');
   await inputArea.fill('key: value');
+
+  // Close sidebar on mobile so toolbar buttons are not behind the backdrop
+  await ensureToolbarInteractable(page);
 
   await expect(undoButton).toBeEnabled();
   await expect(redoButton).toBeDisabled();
@@ -258,6 +288,10 @@ test('export json download triggers', async ({ page }) => {
   // First convert something to have output
   const inputArea = page.locator('#converter-input');
   await inputArea.fill('key: value');
+
+  // Close sidebar on mobile so toolbar buttons are not behind the backdrop
+  await ensureToolbarInteractable(page);
+
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
 
@@ -271,11 +305,17 @@ test('export json download triggers', async ({ page }) => {
 
 test('shows error for invalid input', async ({ page }) => {
   await page.goto('/');
-  await ensureToolbarInteractable(page);
-
   await ensureSidebarInputAccessible(page);
+
+  // Switch input format to JSON so we actually get a parse error
+  await page.getByRole('radio', { name: 'JSON' }).first().click();
+  await page.waitForTimeout(100);
+
   const inputArea = page.locator('#converter-input');
   await inputArea.fill('{invalid json: here}');
+
+  // Close sidebar on mobile so toolbar buttons are not behind the backdrop
+  await ensureToolbarInteractable(page);
 
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
