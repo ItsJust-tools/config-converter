@@ -92,23 +92,23 @@ describe('ConverterTool deserialize', () => {
     }
   });
 
-  it('rejects non-object data', () => {
-    const result = converterTool.deserialize('string');
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error).toContain('Invalid data');
+  it('accepts raw string as input content', () => {
+    const result = converterTool.deserialize('some config text');
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.input).toBe('some config text');
     }
   });
 
-  it('rejects object without required fields', () => {
+  it('accepts plain object as input content', () => {
     const result = converterTool.deserialize({ count: 42 });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error).toContain('Invalid data');
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.input).toContain('"count"');
     }
   });
 
-  it('rejects object with wrong types', () => {
+  it('accepts object with mismatched types as JSON input', () => {
     const result = converterTool.deserialize({
       inputFormat: 123,
       outputFormat: 'json',
@@ -120,9 +120,9 @@ describe('ConverterTool deserialize', () => {
       sortKeys: false,
       yamlToJsonTabs: false,
     });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error).toContain('Invalid data');
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.input).toContain('"inputFormat"');
     }
   });
 

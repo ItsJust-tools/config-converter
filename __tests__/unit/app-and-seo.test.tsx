@@ -117,10 +117,13 @@ describe('app and seo', () => {
         yamlToJsonTabs: false,
       },
     });
-    expect(converterTool.deserialize({ nope: true })).toEqual({
-      success: false,
-      error: 'Invalid data format: expected ConverterState object',
+    expect(converterTool.deserialize({ nope: true })).toMatchObject({
+      success: true,
     });
+    const nopeResult = converterTool.deserialize({ nope: true });
+    if (nopeResult.success) {
+      expect(nopeResult.data.input).toContain('"nope"');
+    }
     expect(converterTool.serialize(converterTool.initialState)).toContain('"inputFormat": "yaml"');
   });
 
