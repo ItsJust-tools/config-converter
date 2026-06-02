@@ -12,6 +12,10 @@
     "configuration",
     "developer-tools"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ItsJust-tools/config-converter.git"
+  },
   "homepage": "https://itsjust.tools/config-converter",
   "bugs": {
     "url": "https://github.com/itsjust-tools/config-converter/issues"
