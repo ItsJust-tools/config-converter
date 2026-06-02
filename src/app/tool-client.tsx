@@ -193,7 +193,12 @@ export default function ToolClient() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tool.state.data.input, tool.state.data.inputFormat, tool.state.data.outputFormat, tool.state.data.sortKeys]);
+  }, [
+    tool.state.data.input,
+    tool.state.data.inputFormat,
+    tool.state.data.outputFormat,
+    tool.state.data.sortKeys,
+  ]);
 
   const toolbarActions = useMemo(() => tool.toolbarActions, [tool.toolbarActions]);
 
