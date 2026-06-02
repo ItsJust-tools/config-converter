@@ -13,7 +13,6 @@ function defaultState(): ConverterState {
     minify: false,
     indentSize: 2,
     sortKeys: false,
-    yamlToJsonTabs: false,
   };
 }
 
@@ -75,7 +74,6 @@ describe('ConverterTool deserialize', () => {
       minify: false,
       indentSize: 2,
       sortKeys: false,
-      yamlToJsonTabs: false,
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -118,7 +116,6 @@ describe('ConverterTool deserialize', () => {
       minify: false,
       indentSize: 2,
       sortKeys: false,
-      yamlToJsonTabs: false,
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -136,7 +133,6 @@ describe('ConverterTool deserialize', () => {
       minify: false,
       indentSize: 2,
       sortKeys: false,
-      yamlToJsonTabs: false,
     };
     const json = converterTool.serialize(state);
     expect(() => JSON.parse(json)).not.toThrow();

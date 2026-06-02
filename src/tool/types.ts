@@ -9,5 +9,4 @@ export interface ConverterState {
   minify: boolean;
   indentSize: number;
   sortKeys: boolean;
-  yamlToJsonTabs: boolean;
 }

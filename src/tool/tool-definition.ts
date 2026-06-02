@@ -1,22 +1,7 @@
 import type { Tool } from '@itsjust/core';
 import toolConfig from './tool.config';
 import type { ConverterState } from './types';
-import { convertConfig } from './converter';
-
-function isConverterState(value: unknown): value is ConverterState {
-  if (typeof value !== 'object' || value === null) return false;
-  const v = value as Record<string, unknown>;
-  return (
-    typeof v.inputFormat === 'string' &&
-    typeof v.outputFormat === 'string' &&
-    typeof v.input === 'string' &&
-    typeof v.output === 'string' &&
-    typeof v.error === 'string' &&
-    typeof v.minify === 'boolean' &&
-    typeof v.indentSize === 'number' &&
-    typeof v.sortKeys === 'boolean'
-  );
-}
+import { convertConfig, isConverterState } from './converter';
 
 export const converterTool: Tool<ConverterState> = {
   id: toolConfig.id,
@@ -32,7 +17,6 @@ export const converterTool: Tool<ConverterState> = {
     minify: false,
     indentSize: 2,
     sortKeys: false,
-    yamlToJsonTabs: false,
   },
   serialize: (state) => JSON.stringify(state, null, 2),
   deserialize: (data) => {

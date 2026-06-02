@@ -101,7 +101,6 @@ describe('app and seo', () => {
         minify: false,
         indentSize: 2,
         sortKeys: false,
-        yamlToJsonTabs: false,
       })
     ).toEqual({
       success: true,
@@ -114,7 +113,6 @@ describe('app and seo', () => {
         minify: false,
         indentSize: 2,
         sortKeys: false,
-        yamlToJsonTabs: false,
       },
     });
     expect(converterTool.deserialize({ nope: true })).toMatchObject({
@@ -137,7 +135,6 @@ describe('app and seo', () => {
       minify: false,
       indentSize: 2,
       sortKeys: false,
-      yamlToJsonTabs: false,
     };
 
     render(

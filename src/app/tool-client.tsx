@@ -21,6 +21,8 @@ export default function ToolClient() {
   const showToast = tool.toast;
   const [isSharing, setIsSharing] = useState(false);
   const hasLoadedSharedState = useRef(false);
+  const isInitialMount = useRef(true);
+  const autoConvertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(
     () => typeof window !== 'undefined' && window.innerWidth > 768 && toolConfig.features.sidebar
   );
@@ -89,7 +91,6 @@ export default function ToolClient() {
       setToolData((prev) => ({ ...prev, output: '', error }));
     } else {
       setToolData((prev) => ({ ...prev, output, error: '' }));
-      showToast('Conversion complete!', 'success');
     }
   }, [tool.state.data, showToast, setToolData]);
 
@@ -167,6 +168,32 @@ export default function ToolClient() {
       setIsSharing(false);
     }
   }, [showToast, tool.state.data, title]);
+
+  // Auto-convert when input text, format, or sort-keys change (debounced 300ms)
+  // This avoids requiring the user to click "Convert" after every change.
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    if (autoConvertTimerRef.current) {
+      clearTimeout(autoConvertTimerRef.current);
+    }
+
+    if (tool.state.data.input.trim()) {
+      autoConvertTimerRef.current = setTimeout(() => {
+        handleConvert();
+      }, 300);
+    }
+
+    return () => {
+      if (autoConvertTimerRef.current) {
+        clearTimeout(autoConvertTimerRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tool.state.data.input, tool.state.data.inputFormat, tool.state.data.outputFormat, tool.state.data.sortKeys]);
 
   const toolbarActions = useMemo(() => tool.toolbarActions, [tool.toolbarActions]);
 
