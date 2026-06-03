@@ -79,12 +79,16 @@ export function convertConfig(
       parsed = sortObjectKeys(parsed as Record<string, unknown>);
     }
 
+    // Normalise parsed data: convert non-serializable values (e.g. Date from TOML)
+    // to plain JSON-compatible representations before serialization.
+    const normalised = normaliseValues(parsed);
+
     // --- Serialize output ---
     let output: string;
 
     switch (outputFormat) {
       case 'yaml': {
-        output = jsYaml.dump(parsed, {
+        output = jsYaml.dump(normalised, {
           indent: indentSize,
           lineWidth: minify ? 200 : 80,
           noRefs: true,
@@ -99,14 +103,14 @@ export function convertConfig(
       }
       case 'json': {
         if (minify) {
-          output = JSON.stringify(parsed);
+          output = JSON.stringify(normalised);
         } else {
-          output = JSON.stringify(parsed, null, indentSize);
+          output = JSON.stringify(normalised, null, indentSize);
         }
         break;
       }
       case 'toml': {
-        output = stringifyToml(parsed as Record<string, unknown>);
+        output = stringifyToml(normalised as Record<string, unknown>);
         output = output.trimEnd();
         break;
       }
@@ -117,6 +121,39 @@ export function convertConfig(
     const message = err instanceof Error ? err.message : String(err);
     return { output: '', error: `Conversion error: ${message}` };
   }
+}
+
+/**
+ * Recursively converts non-serializable values to plain JSON-safe equivalents.
+ * - Date → ISO string
+ * - Map → plain object
+ * - Set → array
+ */
+function normaliseValues(value: unknown): unknown {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+  if (value instanceof Map) {
+    const obj: Record<string, unknown> = {};
+    value.forEach((v, k) => {
+      obj[String(k)] = normaliseValues(v);
+    });
+    return obj;
+  }
+  if (value instanceof Set) {
+    return Array.from(value).map(normaliseValues);
+  }
+  if (Array.isArray(value)) {
+    return value.map(normaliseValues);
+  }
+  if (typeof value === 'object' && value !== null) {
+    const obj: Record<string, unknown> = {};
+    for (const key of Object.keys(value as Record<string, unknown>)) {
+      obj[key] = normaliseValues((value as Record<string, unknown>)[key]);
+    }
+    return obj;
+  }
+  return value;
 }
 
 /**

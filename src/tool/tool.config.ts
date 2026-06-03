@@ -8,7 +8,7 @@ const toolConfig = {
   name: 'Config Converter',
   description:
     'Convert between YAML, JSON, and TOML formats instantly. Paste your config, pick source and target format, and get clean output. All client-side, privacy-first.',
-  version: '1.0.0',
+  version: packageJson.version,
   exportFormats: ['json', 'pdf'],
   features: {
     export: true,
