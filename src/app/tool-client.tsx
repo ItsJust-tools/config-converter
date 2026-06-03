@@ -169,8 +169,9 @@ export default function ToolClient() {
     }
   }, [showToast, tool.state.data, title]);
 
-  // Auto-convert when input text, format, or sort-keys change (debounced 300ms)
+  // Auto-convert when input or options change (debounced 300ms).
   // This avoids requiring the user to click "Convert" after every change.
+  // Only re-run when any conversion-relevant field changes.
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
@@ -183,7 +184,22 @@ export default function ToolClient() {
 
     if (tool.state.data.input.trim()) {
       autoConvertTimerRef.current = setTimeout(() => {
-        handleConvert();
+        const { output, error } = convertConfig(
+          tool.state.data.input,
+          tool.state.data.inputFormat,
+          tool.state.data.outputFormat,
+          {
+            minify: tool.state.data.minify,
+            indentSize: tool.state.data.indentSize,
+            sortKeys: tool.state.data.sortKeys,
+          }
+        );
+        if (error) {
+          showToast(error, 'error');
+          setToolData((prev) => ({ ...prev, output: '', error }));
+        } else {
+          setToolData((prev) => ({ ...prev, output, error: '' }));
+        }
       }, 300);
     }
 
@@ -192,12 +208,15 @@ export default function ToolClient() {
         clearTimeout(autoConvertTimerRef.current);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tool.state.data.input,
     tool.state.data.inputFormat,
     tool.state.data.outputFormat,
+    tool.state.data.minify,
+    tool.state.data.indentSize,
     tool.state.data.sortKeys,
+    setToolData,
+    showToast,
   ]);
 
   const toolbarActions = useMemo(() => tool.toolbarActions, [tool.toolbarActions]);
