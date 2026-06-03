@@ -1,14 +1,13 @@
 import type { ToolConfig } from '@itsjust/core';
-import packageJson from '../../package.json';
 
-export const templateBaseVersion = packageJson.version;
+export const templateBaseVersion = '1.4.0';
 
 const toolConfig = {
   id: 'config-converter',
   name: 'Config Converter',
   description:
     'Convert between YAML, JSON, and TOML formats instantly. Paste your config, pick source and target format, and get clean output. All client-side, privacy-first.',
-  version: packageJson.version,
+  version: '1.4.0',
   exportFormats: ['json', 'pdf'],
   features: {
     export: true,
