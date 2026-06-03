@@ -124,10 +124,20 @@ export function convertConfig(
 }
 
 /**
- * Recursively converts non-serializable values to plain JSON-safe equivalents.
- * - Date → ISO string
- * - Map → plain object
- * - Set → array
+ * Recursively converts non-serializable JavaScript values to plain JSON-safe equivalents
+ * before passing them to a serialiser. This prevents runtime crashes when values like
+ * `Date`, `Map`, or `Set` appear in parsed TOML or YAML and then need to be serialised
+ * back to another format that doesn't natively support them.
+ *
+ * - `Date` → ISO 8601 string
+ * - `Map` → plain object literal (keys coerced to strings)
+ * - `Set` → plain array (order preserved)
+ * - Arrays are mapped element-by-element
+ * - Plain objects are recursed into (keys unchanged)
+ * - Primitives pass through unchanged
+ *
+ * @param value - Any value that may contain non-serialisable types.
+ * @returns A deeply-normalised, JSON-safe copy of the input.
  */
 function normaliseValues(value: unknown): unknown {
   if (value instanceof Date) {
@@ -158,7 +168,11 @@ function normaliseValues(value: unknown): unknown {
 
 /**
  * Recursively sorts the keys of an object alphabetically.
- * Arrays are processed element-by-element without reordering.
+ * Arrays are processed element-by-element without reordering, because
+ * array order carries semantic meaning in configuration formats.
+ *
+ * @param obj - The object whose keys should be sorted (may be mutated).
+ * @returns A new object with all keys sorted at every nesting level.
  */
 function sortObjectKeys(obj: Record<string, unknown>): Record<string, unknown> {
   if (Array.isArray(obj)) {

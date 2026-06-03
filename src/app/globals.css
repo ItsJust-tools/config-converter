@@ -618,11 +618,6 @@ body {
   box-shadow: 0 0 0 2px var(--accent-subtle);
 }
 
-.converter-textarea-input {
-  cursor: default;
-  background: color-mix(in srgb, var(--card) 90%, var(--accent) 5%);
-}
-
 .converter-output {
   flex: 1;
   width: 100%;

@@ -24,21 +24,24 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
         </div>
       )}
 
-      {/* Input area */}
+      {/* Input area — rendered as a <pre> block for read-only display */}
       <div className="converter-pane">
         <div className="converter-pane-header">
           <span className="converter-pane-label">Input ({state.inputFormat.toUpperCase()})</span>
           <span className="converter-pane-stats">{state.input.length.toLocaleString()} chars</span>
         </div>
-        <textarea
-          className="converter-textarea converter-textarea-input"
-          value={state.input}
-          readOnly
-          placeholder="Enter configuration to convert..."
-          aria-label="Input configuration"
-          rows={Math.max(8, Math.min(Math.ceil(state.input.length / 60), 20))}
-          onClick={(e) => (e.target as HTMLTextAreaElement).select()}
-        />
+        {state.input ? (
+          <pre className="converter-output">
+            <code>{state.input}</code>
+          </pre>
+        ) : (
+          <div className="converter-empty">
+            <div className="converter-empty-icon">⇄</div>
+            <p className="converter-empty-text">
+              Type or paste YAML, JSON, or TOML in the sidebar
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Output area */}

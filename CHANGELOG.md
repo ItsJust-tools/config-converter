@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.4.1 (2026-06-03)
+
+- Updated outdated dependencies: js-yaml@4.2.0, next@16.2.7, react@19.2.7, react-dom@19.2.7, @types/react@19.2.16, @vitejs/plugin-react@6.0.2, @vitest/coverage-v8@4.1.8, vitest@4.1.8, eslint-config-next@16.2.7, lint-staged@17.0.7, lucide-react@1.17.0
+- Improved canvas UI: replaced read-only textarea with consistent `<pre>` block for input display
+- Added comprehensive JSDoc to `normaliseValues` and `sortObjectKeys` functions
+- Added unit tests for `isConverterState`, Map/Set normalization, and nested sort-object-keys
+- Removed unused `.converter-textarea-input` CSS class
+
 ## v1.4.0 (2026-06-03)
 
 - Added comprehensive unit tests for `convertConfig` (all format combinations, options, edge cases)
