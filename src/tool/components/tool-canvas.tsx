@@ -1,6 +1,7 @@
 'use client';
 
 import type { ConverterState } from '../types';
+import { detectFormat } from '../converter';
 
 interface ToolCanvasProps {
   state: ConverterState;
@@ -9,6 +10,12 @@ interface ToolCanvasProps {
 
 export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
   const outputLength = state.output.length;
+  const detectedFormat =
+    state.inputFormat === 'auto' && state.input.trim() ? detectFormat(state.input) : null;
+  const inputLabel =
+    state.inputFormat === 'auto'
+      ? `Auto${detectedFormat ? ` (${detectedFormat.toUpperCase()})` : ''}`
+      : state.inputFormat.toUpperCase();
 
   return (
     <div
@@ -27,7 +34,7 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
       {/* Input area — rendered as a <pre> block for read-only display */}
       <div className="converter-pane">
         <div className="converter-pane-header">
-          <span className="converter-pane-label">Input ({state.inputFormat.toUpperCase()})</span>
+          <span className="converter-pane-label">Input ({inputLabel})</span>
           <span className="converter-pane-stats">{state.input.length.toLocaleString()} chars</span>
         </div>
         {state.input ? (
@@ -37,9 +44,7 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
         ) : (
           <div className="converter-empty">
             <div className="converter-empty-icon">⇄</div>
-            <p className="converter-empty-text">
-              Type or paste YAML, JSON, or TOML in the sidebar
-            </p>
+            <p className="converter-empty-text">Type or paste YAML, JSON, or TOML in the sidebar</p>
           </div>
         )}
       </div>

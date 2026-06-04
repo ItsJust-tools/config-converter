@@ -13,6 +13,7 @@ interface ToolSidebarProps {
 }
 
 const FORMATS: { label: string; value: ConversionFormat }[] = [
+  { label: 'Auto', value: 'auto' },
   { label: 'YAML', value: 'yaml' },
   { label: 'JSON', value: 'json' },
   { label: 'TOML', value: 'toml' },

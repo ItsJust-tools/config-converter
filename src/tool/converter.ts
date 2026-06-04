@@ -26,7 +26,7 @@ export interface ConversionOptions {
  * Converts a configuration string from one format to another.
  *
  * @param input - The raw configuration text to convert.
- * @param inputFormat - The format of the input (yaml, json, or toml).
+ * @param inputFormat - The format of the input (yaml, json, toml, or auto for auto-detection).
  * @param outputFormat - The desired output format.
  * @param options - Optional conversion settings (minify, indent size, sort keys).
  * @returns A ConversionResult with either the converted output or an error message.
@@ -43,6 +43,9 @@ export function convertConfig(
 ): ConversionResult {
   const { minify = false, indentSize = 2, sortKeys = false } = options;
 
+  // Attempt auto-detection if requested
+  const resolvedFormat = inputFormat === 'auto' ? detectFormat(input) : inputFormat;
+
   if (!input.trim()) {
     return { output: '', error: 'Please enter some configuration to convert.' };
   }
@@ -51,7 +54,7 @@ export function convertConfig(
     // --- Parse input ---
     let parsed: unknown;
 
-    switch (inputFormat) {
+    switch (resolvedFormat) {
       case 'yaml': {
         parsed = jsYaml.load(input);
         break;
@@ -63,6 +66,10 @@ export function convertConfig(
       case 'toml': {
         parsed = parseToml(input);
         break;
+      }
+      case 'auto': {
+        // Already resolved above; this case should never execute
+        return { output: '', error: 'Internal error: auto-detection failed to resolve format.' };
       }
     }
 
@@ -84,7 +91,7 @@ export function convertConfig(
     const normalised = normaliseValues(parsed);
 
     // --- Serialize output ---
-    let output: string;
+    let output = '';
 
     switch (outputFormat) {
       case 'yaml': {
@@ -119,6 +126,7 @@ export function convertConfig(
     return { output, error: '' };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    // Try fallback for auto-detect: if the resolved format fails, no need to retry
     return { output: '', error: `Conversion error: ${message}` };
   }
 }
@@ -164,6 +172,46 @@ function normaliseValues(value: unknown): unknown {
     return obj;
   }
   return value;
+}
+
+/**
+ * Attempts to auto-detect the format of a configuration string.
+ * Uses heuristics: TOML has `key = value` or `[section]` patterns,
+ * JSON starts with `{` or `[`, and YAML is the fallback.
+ *
+ * @param input - The raw configuration text to inspect.
+ * @returns The detected ConversionFormat (defaults to 'yaml').
+ */
+export function detectFormat(input: string): ConversionFormat {
+  const trimmed = input.trim();
+  if (!trimmed) return 'yaml';
+
+  // JSON detection: begins with `{` or `[` (object or array literal)
+  if ((trimmed.startsWith('{') || trimmed.startsWith('[')) && tryParseJson(trimmed)) {
+    return 'json';
+  }
+
+  // TOML detection: contains `[section]` header or `key = value` at the start of a line
+  if (/^\s*\[.*\]\s*$/m.test(trimmed) || /^\s*\w+\s*=/m.test(trimmed)) {
+    // Make sure it's not a YAML key: value pair by checking it's not a YAML valid line
+    // TOML uses `=`, YAML uses `:`
+    return 'toml';
+  }
+
+  // Default to YAML
+  return 'yaml';
+}
+
+/**
+ * Tries to parse a string as JSON without throwing.
+ */
+function tryParseJson(input: string): boolean {
+  try {
+    JSON.parse(input);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**

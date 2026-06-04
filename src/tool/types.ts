@@ -1,4 +1,4 @@
-export type ConversionFormat = 'yaml' | 'json' | 'toml';
+export type ConversionFormat = 'yaml' | 'json' | 'toml' | 'auto';
 
 export interface ConverterState {
   inputFormat: ConversionFormat;
