@@ -169,14 +169,14 @@ export default function ToolClient() {
     }
   }, [showToast, tool.state.data, title]);
 
-  // Handle tool-specific keyboard shortcuts (Ctrl+Enter, Ctrl+Shift+S, Ctrl+Shift+C)
+  // Handle tool-specific keyboard shortcuts (Ctrl+Enter, Ctrl+Shift+S, Ctrl+Shift+C, Ctrl+Shift+X)
   // as defined in tool.config.ts
   useEffect(() => {
     function handleKeyboardShortcuts(e: KeyboardEvent) {
       const mod = e.metaKey || e.ctrlKey;
       if (!mod) return;
 
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' && !e.shiftKey) {
         // Ctrl+Enter: Convert
         e.preventDefault();
         handleConvert();
@@ -197,13 +197,19 @@ export default function ToolClient() {
             e.preventDefault();
             handleCopyOutput();
             break;
+          case 'X':
+          case 'x':
+            // Ctrl+Shift+X: Clear all
+            e.preventDefault();
+            handleClear();
+            break;
         }
       }
     }
 
     window.addEventListener('keydown', handleKeyboardShortcuts);
     return () => window.removeEventListener('keydown', handleKeyboardShortcuts);
-  }, [handleConvert, handleSwapFormats, handleCopyOutput]);
+  }, [handleConvert, handleSwapFormats, handleCopyOutput, handleClear]);
 
   // Auto-convert when input or options change (debounced 300ms).
   // This avoids requiring the user to click "Convert" after every change.

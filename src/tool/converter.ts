@@ -204,6 +204,9 @@ export function detectFormat(input: string): ConversionFormat {
 
 /**
  * Tries to parse a string as JSON without throwing.
+ *
+ * @param input - The string to attempt JSON parsing on.
+ * @returns True if the string is valid JSON, false otherwise.
  */
 function tryParseJson(input: string): boolean {
   try {
@@ -219,17 +222,17 @@ function tryParseJson(input: string): boolean {
  * Arrays are processed element-by-element without reordering, because
  * array order carries semantic meaning in configuration formats.
  *
- * @param obj - The object whose keys should be sorted (may be mutated).
+ * @param obj - The object whose keys should be sorted (never mutated).
  * @returns A new object with all keys sorted at every nesting level.
  */
 function sortObjectKeys(obj: Record<string, unknown>): Record<string, unknown> {
+  // If the object is actually an array, sort keys within each element
   if (Array.isArray(obj)) {
-    return obj.map((item) => {
-      if (typeof item === 'object' && item !== null) {
-        return sortObjectKeys(item as Record<string, unknown>);
-      }
-      return item;
-    }) as unknown as Record<string, unknown>;
+    return obj.map((item) =>
+      typeof item === 'object' && item !== null
+        ? sortObjectKeys(item as Record<string, unknown>)
+        : item
+    ) as unknown as Record<string, unknown>;
   }
 
   const sorted: Record<string, unknown> = {};

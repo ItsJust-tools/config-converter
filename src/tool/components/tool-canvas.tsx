@@ -10,8 +10,9 @@ interface ToolCanvasProps {
 
 export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
   const outputLength = state.output.length;
+  const hasInput = state.input.trim().length > 0;
   const detectedFormat =
-    state.inputFormat === 'auto' && state.input.trim() ? detectFormat(state.input) : null;
+    state.inputFormat === 'auto' && hasInput ? detectFormat(state.input) : null;
   const inputLabel =
     state.inputFormat === 'auto'
       ? `Auto${detectedFormat ? ` (${detectedFormat.toUpperCase()})` : ''}`
@@ -45,12 +46,13 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
           <div className="converter-empty">
             <div className="converter-empty-icon">⇄</div>
             <p className="converter-empty-text">Type or paste YAML, JSON, or TOML in the sidebar</p>
+            <p className="converter-empty-hint">Ctrl+Enter to convert · Ctrl+Shift+S to swap</p>
           </div>
         )}
       </div>
 
-      {/* Output area */}
-      <div className="converter-pane">
+      {/* Output area with aria-live for screen reader announcements */}
+      <div className="converter-pane" aria-live="polite" aria-atomic="true">
         <div className="converter-pane-header">
           <span className="converter-pane-label">Output ({state.outputFormat.toUpperCase()})</span>
           <div className="converter-pane-actions">
@@ -60,16 +62,18 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
           </div>
         </div>
         {state.output ? (
-          <pre className="converter-output">
+          <pre className="converter-output" data-testid="converter-output">
             <code>{state.output}</code>
           </pre>
         ) : (
-          <div className="converter-empty">
+          <div className="converter-empty" data-testid="converter-empty-output">
             <div className="converter-empty-icon">⇄</div>
             <p className="converter-empty-text">
-              {state.input.trim()
+              {hasInput && !state.error
                 ? 'Click Convert or press Ctrl+Enter'
-                : 'Paste YAML, JSON, or TOML and click Convert'}
+                : state.error
+                  ? ''
+                  : 'Paste YAML, JSON, or TOML and click Convert'}
             </p>
           </div>
         )}

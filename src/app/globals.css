@@ -664,6 +664,14 @@ body {
   font-size: 0.875rem;
   line-height: 1.5;
   max-width: 20rem;
+  margin: 0;
+}
+
+.converter-empty-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  opacity: 0.7;
+  margin: 0;
 }
 
 /* ===== Config Converter Toolbar ===== */
