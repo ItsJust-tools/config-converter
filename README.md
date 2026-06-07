@@ -21,7 +21,7 @@ Convert between **YAML**, **JSON**, and **TOML** formats instantly. All client-s
 - **Swap formats** — One-click swap between source and target format
 - **Share state** — Share your current conversion via URL
 - **Dark mode** — Respects system preference with manual toggle
-- **Keyboard shortcuts** — Ctrl+Enter to convert, Ctrl+Shift+C to copy output
+- **Keyboard shortcuts** — `Ctrl+Enter` to convert · `Ctrl+Shift+S` swap formats · `Ctrl+Shift+C` copy output · `Ctrl+Shift+X` clear all
 
 ## Supported Formats
 

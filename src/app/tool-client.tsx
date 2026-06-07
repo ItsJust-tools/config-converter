@@ -26,6 +26,7 @@ export default function ToolClient() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(
     () => typeof window !== 'undefined' && window.innerWidth > 768 && toolConfig.features.sidebar
   );
+  const [isConverting, setIsConverting] = useState(false);
 
   const title = toolConfig.name;
 
@@ -225,7 +226,9 @@ export default function ToolClient() {
     }
 
     if (tool.state.data.input.trim()) {
+      setIsConverting(true);
       autoConvertTimerRef.current = setTimeout(() => {
+        setIsConverting(false);
         const { output, error } = convertConfig(
           tool.state.data.input,
           tool.state.data.inputFormat,
@@ -249,6 +252,7 @@ export default function ToolClient() {
       if (autoConvertTimerRef.current) {
         clearTimeout(autoConvertTimerRef.current);
       }
+      setIsConverting(false);
     };
   }, [
     tool.state.data.input,
@@ -316,6 +320,12 @@ export default function ToolClient() {
       {tool.state.data.output && (
         <span className="status-slot status-slot-length">
           {tool.state.data.output.length.toLocaleString()} chars
+        </span>
+      )}
+      {isConverting && (
+        <span className="status-slot status-slot-converting" aria-live="polite">
+          <span className="status-converting-dot" />
+          Converting…
         </span>
       )}
       <span className="status-slot status-slot-tool-version">Tool v{toolConfig.version}</span>
