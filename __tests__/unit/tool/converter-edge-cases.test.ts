@@ -181,4 +181,53 @@ describe('convertConfig with auto-detect', () => {
     expect(result.output).toBe('');
     expect(result.error).toBe('Please enter some configuration to convert.');
   });
+
+  it('auto-detect + minify produces compact output', () => {
+    const result = convertConfig('name: John\nage: 30', 'auto', 'json', { minify: true });
+    expect(result.error).toBe('');
+    expect(result.output).toBe('{"name":"John","age":30}');
+  });
+
+  it('auto-detect + sortKeys sorts keys alphabetically', () => {
+    const result = convertConfig('z: 1\na: 2\nm: 3', 'auto', 'json', { sortKeys: true });
+    expect(result.error).toBe('');
+    expect(Object.keys(JSON.parse(result.output))).toEqual(['a', 'm', 'z']);
+  });
+
+  it('auto-detect with TOML forced via = pattern and custom indent', () => {
+    const result = convertConfig('title = "Hello"\ncount = 42', 'auto', 'toml', { indentSize: 4 });
+    expect(result.error).toBe('');
+    expect(result.output).toContain('title = "Hello"');
+    expect(result.output).toContain('count = 42');
+  });
+
+  it('detects TOML with dotted keys', () => {
+    expect(detectFormat('network.host = "localhost"')).toBe('toml');
+  });
+
+  it('detects TOML with inline tables', () => {
+    expect(detectFormat('server = { host = "localhost" }')).toBe('toml');
+  });
+
+  it('clamps indentSize below min to 1', () => {
+    const result = convertConfig('{"a": 1}', 'json', 'json', { indentSize: -5 });
+    expect(result.error).toBe('');
+    // Should work without error (indent clamped to 1)
+    const parsed = JSON.parse(result.output);
+    expect(parsed.a).toBe(1);
+  });
+
+  it('clamps indentSize above max to 8', () => {
+    const result = convertConfig('{"a": 1}', 'json', 'json', { indentSize: 999 });
+    expect(result.error).toBe('');
+    const parsed = JSON.parse(result.output);
+    expect(parsed.a).toBe(1);
+  });
+
+  it('handles indentSize of 0 gracefully', () => {
+    const result = convertConfig('{"a": 1}', 'json', 'json', { indentSize: 0 });
+    expect(result.error).toBe('');
+    const parsed = JSON.parse(result.output);
+    expect(parsed.a).toBe(1);
+  });
 });

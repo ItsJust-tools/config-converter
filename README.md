@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/ItsJust-tools/config-converter/actions/workflows/ci.yml/badge.svg)](https://github.com/ItsJust-tools/config-converter/actions/workflows/ci.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![npm version](https://img.shields.io/badge/version-1.4.0-blue)]()
+[![npm version](https://img.shields.io/badge/version-1.4.1-blue)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/itsjust-tools/config-converter/issues)
 
 Convert between **YAML**, **JSON**, and **TOML** formats instantly. All client-side, privacy-first.

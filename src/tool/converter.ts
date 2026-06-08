@@ -2,6 +2,18 @@ import jsYaml from 'js-yaml';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 import type { ConversionFormat } from './types';
 
+/**
+ * Maximum allowed indent size.
+ * Values above this will be clamped.
+ */
+const MAX_INDENT_SIZE = 8;
+
+/**
+ * Minimum allowed indent size.
+ * Values below this will be clamped.
+ */
+const MIN_INDENT_SIZE = 1;
+
 /** Result of a conversion operation. */
 export interface ConversionResult {
   /** The converted output string, or empty on error. */
@@ -41,7 +53,9 @@ export function convertConfig(
   outputFormat: ConversionFormat,
   options: ConversionOptions = {}
 ): ConversionResult {
-  const { minify = false, indentSize = 2, sortKeys = false } = options;
+  const { minify = false, sortKeys = false } = options;
+  // Clamp indentSize to valid range [1, 8]
+  const indentSize = Math.min(MAX_INDENT_SIZE, Math.max(MIN_INDENT_SIZE, options.indentSize ?? 2));
 
   // Attempt auto-detection if requested
   const resolvedFormat = inputFormat === 'auto' ? detectFormat(input) : inputFormat;
@@ -176,8 +190,12 @@ function normaliseValues(value: unknown): unknown {
 
 /**
  * Attempts to auto-detect the format of a configuration string.
- * Uses heuristics: TOML has `key = value` or `[section]` patterns,
- * JSON starts with `{` or `[`, and YAML is the fallback.
+ * Uses heuristics:
+ * 1. JSON detection: input begins with `{` or `[` and is valid JSON.
+ * 2. TOML detection: lines containing `[section]` headers or `key = value` patterns
+ *    (TOML uses `=`, YAML uses `:`). An explicit `=` sign is required, not just
+ *    any operator, to avoid false positives with YAML aliases.
+ * 3. YAML is the fallback since most config-like text is valid YAML.
  *
  * @param input - The raw configuration text to inspect.
  * @returns The detected ConversionFormat (defaults to 'yaml').
@@ -191,14 +209,19 @@ export function detectFormat(input: string): ConversionFormat {
     return 'json';
   }
 
-  // TOML detection: contains `[section]` header or `key = value` at the start of a line
-  if (/^\s*\[.*\]\s*$/m.test(trimmed) || /^\s*\w+\s*=/m.test(trimmed)) {
-    // Make sure it's not a YAML key: value pair by checking it's not a YAML valid line
-    // TOML uses `=`, YAML uses `:`
+  // TOML detection: requires `[section]` header OR a line with `=` assignment
+  // TOML uses `=`, YAML uses `:` so this is a strong signal.
+  // The regex requires at least one non-whitespace char before `=` to avoid
+  // matching things like `===` or empty keys.
+  const hasTomlSection = /^\s*\[\w[^\]]*\]\s*$/m.test(trimmed);
+  const hasTomlAssignment = /^\s*\w[\w.-]*\s*=/m.test(trimmed);
+
+  if (hasTomlSection || hasTomlAssignment) {
     return 'toml';
   }
 
-  // Default to YAML
+  // Default to YAML — most config-like text that isn't explicitly JSON or TOML
+  // is valid YAML (e.g. key: value, lists with dashes, etc.)
   return 'yaml';
 }
 

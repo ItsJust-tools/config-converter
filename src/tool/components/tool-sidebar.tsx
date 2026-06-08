@@ -28,6 +28,23 @@ export function ToolSidebar({
   onIndentSizeChange,
   onSortKeysToggle,
 }: ToolSidebarProps) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const textarea = e.currentTarget;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const indent = '  '.repeat(Math.ceil(state.indentSize / 2));
+      const newValue =
+        state.input.substring(0, start) + indent + state.input.substring(end);
+      onInputChange(newValue);
+      // Restore cursor position after React re-render
+      requestAnimationFrame(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + indent.length;
+      });
+    }
+  };
+
   return (
     <div className="converter-sidebar">
       {/* Input Format */}
@@ -85,6 +102,7 @@ export function ToolSidebar({
           placeholder="Paste YAML, JSON, or TOML here…"
           rows={12}
           spellCheck={false}
+          onKeyDown={handleKeyDown}
         />
       </div>
 
