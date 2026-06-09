@@ -39,6 +39,11 @@ const toolConfig = {
           label: 'Copy Output',
           description: 'copy converted result to clipboard',
         },
+        {
+          keys: 'Ctrl+Shift+X',
+          label: 'Clear All',
+          description: 'clear input, output, and error state',
+        },
       ],
     },
   ],
