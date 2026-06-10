@@ -205,8 +205,28 @@ describe('convertConfig with auto-detect', () => {
     expect(detectFormat('network.host = "localhost"')).toBe('toml');
   });
 
+  it('does not false-positive detect TOML from YAML with URL values containing =', () => {
+    // YAML values with query parameters contain `=` but should not be read as TOML
+    const yamlUrl =
+      'url: "https://example.com/api?version=2&limit=10"';
+    expect(detectFormat(yamlUrl)).toBe('yaml');
+  });
+
   it('detects TOML with inline tables', () => {
     expect(detectFormat('server = { host = "localhost" }')).toBe('toml');
+  });
+
+  it('detects TOML with array of tables', () => {
+    expect(detectFormat('[[products]]\nname = "Hammer"')).toBe('toml');
+  });
+
+  it('does not detect TOML from YAML with boolean-like values', () => {
+    // Pure YAML with no `=` signs
+    expect(detectFormat('enabled: yes\ndebug: off')).toBe('yaml');
+  });
+
+  it('detects TOML with boolean assignment', () => {
+    expect(detectFormat('enabled = true')).toBe('toml');
   });
 
   it('clamps indentSize below min to 1', () => {

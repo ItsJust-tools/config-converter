@@ -81,10 +81,7 @@ export function convertConfig(
         parsed = parseToml(input);
         break;
       }
-      case 'auto': {
-        // Already resolved above; this case should never execute
-        return { output: '', error: 'Internal error: auto-detection failed to resolve format.' };
-      }
+      // Note: 'auto' is handled above via resolvedFormat
     }
 
     if (parsed === null || parsed === undefined) {
@@ -193,8 +190,9 @@ function normaliseValues(value: unknown): unknown {
  * Uses heuristics:
  * 1. JSON detection: input begins with `{` or `[` and is valid JSON.
  * 2. TOML detection: lines containing `[section]` headers or `key = value` patterns
- *    (TOML uses `=`, YAML uses `:`). An explicit `=` sign is required, not just
- *    any operator, to avoid false positives with YAML aliases.
+ *    (TOML uses `=`, YAML uses `:`). A `=` sign at the end of a word—typically
+ *    a URL or YAML alias (`key: "http://x?y=1"`)—is not treated as a TOML assignment;
+ *    the `=` must have a space or be preceded by a bare key name to count.
  * 3. YAML is the fallback since most config-like text is valid YAML.
  *
  * @param input - The raw configuration text to inspect.
