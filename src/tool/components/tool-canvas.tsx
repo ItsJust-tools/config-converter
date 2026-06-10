@@ -3,11 +3,29 @@
 import type { ConverterState } from '../types';
 import { detectFormat } from '../converter';
 
+/** Props for the {@link ToolCanvas} component. */
 interface ToolCanvasProps {
+  /** Current converter state to display. */
   state: ConverterState;
+  /** Optional ref forwarded to the root element for export/screenshot purposes. */
   canvasRef?: React.RefObject<HTMLDivElement | null>;
 }
 
+/**
+ * Main canvas area for the Config Converter tool.
+ *
+ * Renders a two-column layout showing the input (preview) on the left and
+ * the converted output on the right. Both panes include format labels and
+ * character counts. When either pane is empty a placeholder message is shown.
+ *
+ * When the input format is set to `'auto'` the detected format is displayed
+ * in parentheses next to the input label (e.g., "Auto (YAML)").
+ *
+ * @example
+ * ```tsx
+ * <ToolCanvas state={state} canvasRef={ref} />
+ * ```
+ */
 export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
   const outputLength = state.output.length;
   const hasInput = state.input.trim().length > 0;

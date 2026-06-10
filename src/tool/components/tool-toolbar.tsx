@@ -2,14 +2,39 @@
 
 import type { ConverterState } from '../types';
 
+/** Props for the {@link ToolToolbar} component. */
 interface ToolToolbarProps {
+  /** Current converter state. */
   state: ConverterState;
+  /** Callback to execute the conversion. */
   onConvert: () => void;
+  /** Callback to swap input and output formats. */
   onSwapFormats: () => void;
+  /** Callback to copy the output to the clipboard. */
   onCopyOutput: () => void;
+  /** Callback to clear all state (input, output, error). */
   onClear: () => void;
 }
 
+/**
+ * Toolbar for the Config Converter tool.
+ *
+ * Provides action buttons: Convert, Swap, Copy Output, and Clear.
+ * Buttons are disabled or hidden contextually — for example, Convert
+ * is disabled when there is no input, and Copy Output only appears
+ * when there is converted output to copy.
+ *
+ * @example
+ * ```tsx
+ * <ToolToolbar
+ *   state={state}
+ *   onConvert={handleConvert}
+ *   onSwapFormats={handleSwap}
+ *   onCopyOutput={handleCopy}
+ *   onClear={handleClear}
+ * />
+ * ```
+ */
 export function ToolToolbar({
   state,
   onConvert,

@@ -2,23 +2,44 @@
 
 import type { ConverterState, ConversionFormat } from '../types';
 
+/** Props for the {@link ToolSidebar} component. */
 interface ToolSidebarProps {
+  /** Current converter state. */
   state: ConverterState;
+  /** Called when the user selects a different input format. */
   onInputFormatChange: (format: ConversionFormat) => void;
+  /** Called when the user selects a different output format. */
   onOutputFormatChange: (format: ConversionFormat) => void;
+  /** Called when the user edits the configuration textarea. */
   onInputChange: (input: string) => void;
+  /** Called when the user toggles minification. */
   onMinifyToggle: (minify: boolean) => void;
+  /** Called when the user changes the indent size slider. */
   onIndentSizeChange: (size: number) => void;
+  /** Called when the user toggles alphabetical key sorting. */
   onSortKeysToggle: (sortKeys: boolean) => void;
 }
 
-const FORMATS: { label: string; value: ConversionFormat }[] = [
-  { label: 'Auto', value: 'auto' },
-  { label: 'YAML', value: 'yaml' },
-  { label: 'JSON', value: 'json' },
-  { label: 'TOML', value: 'toml' },
-];
-
+/**
+ * Sidebar panel for the Config Converter tool.
+ *
+ * Provides format selection (input/output), a textarea for pasting configuration,
+ * and toggles for minification, key sorting, and indent size.
+ *
+ * The textarea handles Tab key insertion so users can indent configuration text
+ * without losing focus.
+ *
+ * @example
+ * ```tsx
+ * <ToolSidebar
+ *   state={state}
+ *   onInputFormatChange={setInputFormat}
+ *   onOutputFormatChange={setOutputFormat}
+ *   onInputChange={setInput}
+ *   …
+ * />
+ * ```
+ */
 export function ToolSidebar({
   state,
   onInputFormatChange,
@@ -143,3 +164,10 @@ export function ToolSidebar({
     </div>
   );
 }
+
+const FORMATS: { label: string; value: ConversionFormat }[] = [
+  { label: 'Auto', value: 'auto' },
+  { label: 'YAML', value: 'yaml' },
+  { label: 'JSON', value: 'json' },
+  { label: 'TOML', value: 'toml' },
+];

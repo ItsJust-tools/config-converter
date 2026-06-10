@@ -145,10 +145,11 @@ export function convertConfig(
 /**
  * Recursively converts non-serializable JavaScript values to plain JSON-safe equivalents
  * before passing them to a serialiser. This prevents runtime crashes when values like
- * `Date`, `Map`, or `Set` appear in parsed TOML or YAML and then need to be serialised
- * back to another format that doesn't natively support them.
+ * `Date`, `Map`, `Set`, or `BigInt` appear in parsed TOML or YAML and then need to be
+ * serialised back to another format that doesn't natively support them.
  *
  * - `Date` → ISO 8601 string
+ * - `BigInt` → number (via `Number()`, may lose precision for very large integers)
  * - `Map` → plain object literal (keys coerced to strings)
  * - `Set` → plain array (order preserved)
  * - Arrays are mapped element-by-element
@@ -161,6 +162,11 @@ export function convertConfig(
 function normaliseValues(value: unknown): unknown {
   if (value instanceof Date) {
     return value.toISOString();
+  }
+  if (typeof value === 'bigint') {
+    // TOML parsers may return BigInt for integer values; convert to number for
+    // JSON/YAML compatibility. Note: very large integers may lose precision.
+    return Number(value);
   }
   if (value instanceof Map) {
     const obj: Record<string, unknown> = {};
@@ -243,12 +249,18 @@ function tryParseJson(input: string): boolean {
  * Arrays are processed element-by-element without reordering, because
  * array order carries semantic meaning in configuration formats.
  *
+ * The function accepts either a plain object or an array of objects;
+ * arrays are returned as-is (with their elements' keys sorted).
+ *
  * @param obj - The object whose keys should be sorted (never mutated).
  * @returns A new object with all keys sorted at every nesting level.
  */
 function sortObjectKeys(obj: Record<string, unknown>): Record<string, unknown> {
-  // If the object is actually an array, sort keys within each element
+  // If the value is actually an array, process each element's keys but preserve array order
   if (Array.isArray(obj)) {
+    // For arrays, we can't meaningfully sort keys — return the sorted elements as-is.
+    // The outer caller wraps array results back into Record<string, unknown> for the
+    // convenience of the calling code which expects that type.
     return obj.map((item) =>
       typeof item === 'object' && item !== null
         ? sortObjectKeys(item as Record<string, unknown>)
