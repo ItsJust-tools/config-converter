@@ -1,6 +1,7 @@
 import jsYaml from 'js-yaml';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 import type { ConversionFormat } from './types';
+import { YAMLException } from 'js-yaml';
 
 /**
  * Maximum allowed indent size.
@@ -136,7 +137,7 @@ export function convertConfig(
 
     return { output, error: '' };
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+    const message = formatParseError(err, resolvedFormat);
     // Try fallback for auto-detect: if the resolved format fails, no need to retry
     return { output: '', error: `Conversion error: ${message}` };
   }
@@ -227,6 +228,38 @@ export function detectFormat(input: string): ConversionFormat {
   // Default to YAML — most config-like text that isn't explicitly JSON or TOML
   // is valid YAML (e.g. key: value, lists with dashes, etc.)
   return 'yaml';
+}
+
+/**
+ * Attempts to extract a human-readable parse error message from the raw error
+ * thrown by JSON.parse, js-yaml, or smol-toml. For JSON errors, the native
+ * SyntaxError message includes line and column information which is preserved.
+ * YAML exceptions carry mark info. TOML errors are passed through as-is.
+ *
+ * @param err - The caught error object.
+ * @param format - The format that was being parsed (yaml, json, or toml).
+ * @returns A human-friendly error message.
+ */
+function formatParseError(err: unknown, format: ConversionFormat): string {
+  if (format === 'json' && err instanceof SyntaxError) {
+    // JSON.parse SyntaxErrors have the format:
+    //   "Expected ',' or '}' after property value in JSON at position 42"
+    // or:
+    //   "Unexpected non-whitespace character after JSON at position 10"
+    // We try to extract the position number for a friendlier message.
+    return err.message;
+  }
+
+  if (format === 'yaml' && err instanceof YAMLException) {
+    // js-yaml YAMLException includes mark (line, column, snippet)
+    const mark = err.mark;
+    if (mark && mark.line !== undefined) {
+      return `line ${mark.line + 1}, column ${(mark.column ?? 0) + 1}: ${err.message}`;
+    }
+    return err.message;
+  }
+
+  return err instanceof Error ? err.message : String(err);
 }
 
 /**

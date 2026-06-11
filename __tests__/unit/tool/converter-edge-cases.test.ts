@@ -251,3 +251,43 @@ describe('convertConfig with auto-detect', () => {
     expect(parsed.a).toBe(1);
   });
 });
+
+describe('error message formatting', () => {
+  it('includes error details for invalid JSON', () => {
+    const result = convertConfig('{invalid}', 'json', 'yaml');
+    expect(result.output).toBe('');
+    expect(result.error).toContain('Conversion error:');
+    // JSON SyntaxErrors include position info
+    expect(result.error).toContain('position');
+  });
+
+  it('includes error details for malformed JSON with trailing comma', () => {
+    const result = convertConfig('{"a": 1,}', 'json', 'yaml');
+    expect(result.output).toBe('');
+    expect(result.error).toContain('Conversion error:');
+    expect(result.error).toContain('position');
+  });
+
+  it('includes line/column info for invalid YAML', () => {
+    const input = 'key: value\ninvalid yaml line\n: : broken';
+    const result = convertConfig(input, 'yaml', 'json');
+    expect(result.output).toBe('');
+    expect(result.error).toContain('Conversion error:');
+    // YAML exceptions have line/column info
+    expect(result.error).toMatch(/line \d+/);
+  });
+
+  it('includes error for invalid TOML', () => {
+    const result = convertConfig('key = ', 'toml', 'json');
+    expect(result.output).toBe('');
+    expect(result.error).toContain('Conversion error:');
+  });
+
+  it('includes error details for corrupted JSON with nested structure', () => {
+    const result = convertConfig('{"a": {"b": [1, 2,', 'json', 'yaml');
+    expect(result.output).toBe('');
+    expect(result.error).toContain('Conversion error:');
+    // Should include the actual JSON error
+    expect(result.error).toContain('JSON');
+  });
+});
