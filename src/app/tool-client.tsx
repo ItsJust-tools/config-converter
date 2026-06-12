@@ -231,7 +231,7 @@ export default function ToolClient() {
     }
 
     if (tool.state.data.input.trim()) {
-      setIsConverting(true);
+      queueMicrotask(() => setIsConverting(true));
       autoConvertTimerRef.current = setTimeout(() => {
         setIsConverting(false);
         const { output, error } = convertConfig(

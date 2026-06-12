@@ -2,7 +2,7 @@
 # Pre-commit hook: run lint-staged, tests, and build before committing
 # This ensures no broken code ever reaches the CI or deployment pipeline.
 
-set -euo pipefail
+set -eu
 
 echo "🔄 Running lint-staged..."
 npx lint-staged

@@ -37,12 +37,12 @@ Convert between **YAML**, **JSON**, and **TOML** formats instantly. Paste your c
 
 ## Keyboard Shortcuts
 
-| Shortcut        | Action              |
-| --------------- | ------------------- |
-| `Ctrl+Enter`    | Run conversion      |
-| `Ctrl+Shift+S`  | Swap source/target formats |
-| `Ctrl+Shift+C`  | Copy output to clipboard |
-| `Ctrl+Shift+X`  | Clear everything    |
+| Shortcut       | Action                     |
+| -------------- | -------------------------- |
+| `Ctrl+Enter`   | Run conversion             |
+| `Ctrl+Shift+S` | Swap source/target formats |
+| `Ctrl+Shift+C` | Copy output to clipboard   |
+| `Ctrl+Shift+X` | Clear everything           |
 
 ## Usage
 
@@ -65,12 +65,12 @@ When the input format is set to **Auto**, the tool uses heuristics to figure out
 
 ## Examples
 
-| Input                       | Output Format | Result                               |
-| --------------------------- | ------------- | ------------------------------------ |
-| `name: John\nage: 30`       | JSON          | `{"name": "John", "age": 30}`     |
-| `{"name": "John"}`         | YAML          | `name: John`                         |
-| `name = "John"\nage = 30`  | JSON          | `{"name": "John", "age": 30}`     |
-| `server:\n  port: 8080`    | TOML          | `[server]\n  port = 8080`           |
+| Input                     | Output Format | Result                        |
+| ------------------------- | ------------- | ----------------------------- |
+| `name: John\nage: 30`     | JSON          | `{"name": "John", "age": 30}` |
+| `{"name": "John"}`        | YAML          | `name: John`                  |
+| `name = "John"\nage = 30` | JSON          | `{"name": "John", "age": 30}` |
+| `server:\n  port: 8080`   | TOML          | `[server]\n  port = 8080`     |
 
 ## Build & Test
 
@@ -129,19 +129,19 @@ packages/
 
 ### `converter.ts`
 
-| Function | Description |
-|----------|-------------|
-| `convertConfig(input, inputFormat, outputFormat, options?)` | Parse input string and serialize to the target format. Returns `{ output, error }`. |
-| `detectFormat(input)` | Auto-detect the format (yaml/json/toml) of a configuration string using heuristics. |
-| `isConverterState(value)` | Type guard for safe deserialization of imported/shared state. |
-| `normaliseValues(value)` | Deeply transforms non-serializable JS values (`Date`, `BigInt`, `Map`, `Set`, `RegExp`, `Symbol`, `undefined`) into JSON-safe equivalents. Used internally before serialization; exported for advanced use cases. |
+| Function                                                    | Description                                                                                                                                                                                                       |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `convertConfig(input, inputFormat, outputFormat, options?)` | Parse input string and serialize to the target format. Returns `{ output, error }`.                                                                                                                               |
+| `detectFormat(input)`                                       | Auto-detect the format (yaml/json/toml) of a configuration string using heuristics.                                                                                                                               |
+| `isConverterState(value)`                                   | Type guard for safe deserialization of imported/shared state.                                                                                                                                                     |
+| `normaliseValues(value)`                                    | Deeply transforms non-serializable JS values (`Date`, `BigInt`, `Map`, `Set`, `RegExp`, `Symbol`, `undefined`) into JSON-safe equivalents. Used internally before serialization; exported for advanced use cases. |
 
 ### `types.ts`
 
-| Type/Interface | Description |
-|----------------|-------------|
-| `ConversionFormat` | Union type: `'yaml' \| 'json' \| 'toml' \| 'auto'` |
-| `ConverterState` | Serialisable state shape with all input/output fields and formatting options. |
+| Type/Interface     | Description                                                                   |
+| ------------------ | ----------------------------------------------------------------------------- |
+| `ConversionFormat` | Union type: `'yaml' \| 'json' \| 'toml' \| 'auto'`                            |
+| `ConverterState`   | Serialisable state shape with all input/output fields and formatting options. |
 
 ## License
 

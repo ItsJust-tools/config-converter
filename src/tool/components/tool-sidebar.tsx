@@ -56,8 +56,7 @@ export function ToolSidebar({
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       const indent = '  '.repeat(Math.ceil(state.indentSize / 2));
-      const newValue =
-        state.input.substring(0, start) + indent + state.input.substring(end);
+      const newValue = state.input.substring(0, start) + indent + state.input.substring(end);
       onInputChange(newValue);
       // Restore cursor position after React re-render
       requestAnimationFrame(() => {

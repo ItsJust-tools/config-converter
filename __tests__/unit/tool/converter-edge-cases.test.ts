@@ -87,7 +87,10 @@ describe('normaliseValues — edge value types', () => {
   });
 
   it('converts Map to object', () => {
-    const m = new Map<string, unknown>([['a', 1], ['b', 2]]);
+    const m = new Map<string, unknown>([
+      ['a', 1],
+      ['b', 2],
+    ]);
     const result = normaliseValues(m);
     expect(result).toEqual({ a: 1, b: 2 });
   });
@@ -283,8 +286,7 @@ describe('convertConfig with auto-detect', () => {
 
   it('does not false-positive detect TOML from YAML with URL values containing =', () => {
     // YAML values with query parameters contain `=` but should not be read as TOML
-    const yamlUrl =
-      'url: "https://example.com/api?version=2&limit=10"';
+    const yamlUrl = 'url: "https://example.com/api?version=2&limit=10"';
     expect(detectFormat(yamlUrl)).toBe('yaml');
   });
 

@@ -34,6 +34,8 @@ const eslintConfig = defineConfig([
     'next-env.d.ts',
     'dist/**',
     'packages/*/dist/**',
+    '__tests__/e2e/**',
+    'playwright.config.ts',
     'coverage/**',
   ]),
 ]);

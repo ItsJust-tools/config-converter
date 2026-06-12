@@ -23,7 +23,8 @@
       "@/*": ["./src/*"],
       "@itsjust/core": ["./packages/core/src"],
       "@itsjust/core/testing": ["./packages/core/src/testing"]
-    }
+    },
+    "ignoreDeprecations": "6.0"
   },
   "include": [
     "next-env.d.ts",
