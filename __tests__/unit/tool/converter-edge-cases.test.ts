@@ -305,6 +305,16 @@ describe('convertConfig with auto-detect', () => {
     expect(detectFormat('enabled = true')).toBe('toml');
   });
 
+  it('detects YAML when input starts with document separator (---)', () => {
+    // YAML document separators should not trigger JSON or TOML detection
+    expect(detectFormat('---\nname: John\nage: 30')).toBe('yaml');
+  });
+
+  it('detects YAML when input starts with document separator alone', () => {
+    // A bare document separator with nothing after is still YAML
+    expect(detectFormat('---\n')).toBe('yaml');
+  });
+
   it('clamps indentSize below min to 1', () => {
     const result = convertConfig('{"a": 1}', 'json', 'json', { indentSize: -5 });
     expect(result.error).toBe('');

@@ -70,44 +70,44 @@ export function ToolSidebar({
     <div className="converter-sidebar">
       {/* Input Format */}
       <div className="converter-sidebar-section">
-        <label className="converter-sidebar-label" htmlFor="input-format">
-          Input Format
-        </label>
-        <div className="converter-format-group" role="radiogroup" aria-label="Input format">
-          {FORMATS.map((fmt) => (
-            <button
-              key={fmt.value}
-              type="button"
-              className={`converter-format-btn ${state.inputFormat === fmt.value ? 'converter-format-btn-active' : ''}`}
-              onClick={() => onInputFormatChange(fmt.value)}
-              role="radio"
-              aria-checked={state.inputFormat === fmt.value}
-            >
-              {fmt.label}
-            </button>
-          ))}
-        </div>
+        <fieldset className="converter-sidebar-fieldset">
+          <legend className="converter-sidebar-label">Input Format</legend>
+          <div className="converter-format-group" role="radiogroup" aria-label="Input format">
+            {FORMATS.map((fmt) => (
+              <button
+                key={fmt.value}
+                type="button"
+                className={`converter-format-btn ${state.inputFormat === fmt.value ? 'converter-format-btn-active' : ''}`}
+                onClick={() => onInputFormatChange(fmt.value)}
+                role="radio"
+                aria-checked={state.inputFormat === fmt.value}
+              >
+                {fmt.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
       </div>
 
       {/* Output Format */}
       <div className="converter-sidebar-section">
-        <label className="converter-sidebar-label" htmlFor="output-format">
-          Output Format
-        </label>
-        <div className="converter-format-group" role="radiogroup" aria-label="Output format">
-          {FORMATS.map((fmt) => (
-            <button
-              key={fmt.value}
-              type="button"
-              className={`converter-format-btn ${state.outputFormat === fmt.value ? 'converter-format-btn-active' : ''}`}
-              onClick={() => onOutputFormatChange(fmt.value)}
-              role="radio"
-              aria-checked={state.outputFormat === fmt.value}
-            >
-              {fmt.label}
-            </button>
-          ))}
-        </div>
+        <fieldset className="converter-sidebar-fieldset">
+          <legend className="converter-sidebar-label">Output Format</legend>
+          <div className="converter-format-group" role="radiogroup" aria-label="Output format">
+            {FORMATS.map((fmt) => (
+              <button
+                key={fmt.value}
+                type="button"
+                className={`converter-format-btn ${state.outputFormat === fmt.value ? 'converter-format-btn-active' : ''}`}
+                onClick={() => onOutputFormatChange(fmt.value)}
+                role="radio"
+                aria-checked={state.outputFormat === fmt.value}
+              >
+                {fmt.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
       </div>
 
       {/* Input area */}

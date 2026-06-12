@@ -754,6 +754,13 @@ body {
   overflow-y: auto;
 }
 
+.converter-sidebar-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
 .converter-sidebar-section {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
