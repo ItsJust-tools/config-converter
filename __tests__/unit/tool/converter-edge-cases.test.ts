@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { convertConfig, isConverterState, detectFormat } from '@/tool/converter';
+import { convertConfig, isConverterState, detectFormat, normaliseValues } from '@/tool/converter';
 
 describe('sortObjectKeys — array element nesting', () => {
   it('sorts keys inside array elements', () => {
@@ -42,6 +42,82 @@ describe('normaliseValues — Map and Set handling', () => {
     const result = convertConfig(input, 'yaml', 'json');
     expect(result.error).toBe('');
     expect(JSON.parse(result.output)).toEqual({ items: [1, 2, 3] });
+  });
+
+  it('handles RegExp values via normaliseValues', () => {
+    // RegExp can arise from YAML parsers with custom type schemas;
+    // normaliseValues must convert them to a portable string.
+    const result = normaliseValues({ pattern: /[a-z]+/gi });
+    expect(result).toEqual({ pattern: '/[a-z]+/gi' });
+  });
+
+  it('handles Symbol values via normaliseValues', () => {
+    // Symbols can't be serialised to JSON/YAML directly; normaliseValues
+    // converts them to their description string.
+    const result = normaliseValues({ key: Symbol('hello') });
+    expect(result).toEqual({ key: 'hello' });
+  });
+
+  it('handles anonymous Symbol values via normaliseValues', () => {
+    // Even symbols without a description should produce an empty string
+    // rather than throwing during serialisation.
+    const result = normaliseValues({ key: Symbol() });
+    expect(result).toEqual({ key: '' });
+  });
+
+  it('handles undefined object keys via normaliseValues', () => {
+    // undefined values in objects should be omitted entirely during
+    // normalisation rather than creating JSON-invalid "undefined" strings.
+    const result = normaliseValues({ existing: 'value', empty: undefined });
+    expect(result).toEqual({ existing: 'value' });
+    expect(result).not.toHaveProperty('empty');
+  });
+});
+
+describe('normaliseValues — edge value types', () => {
+  it('converts Date to ISO string', () => {
+    const d = new Date('2026-06-12T13:00:00Z');
+    const result = normaliseValues(d);
+    expect(result).toBe('2026-06-12T13:00:00.000Z');
+  });
+
+  it('converts BigInt to Number', () => {
+    const result = normaliseValues(BigInt(42));
+    expect(result).toBe(42);
+  });
+
+  it('converts Map to object', () => {
+    const m = new Map<string, unknown>([['a', 1], ['b', 2]]);
+    const result = normaliseValues(m);
+    expect(result).toEqual({ a: 1, b: 2 });
+  });
+
+  it('converts Set to array', () => {
+    const s = new Set([1, 2, 3]);
+    const result = normaliseValues(s);
+    expect(result).toEqual([1, 2, 3]);
+  });
+
+  it('recursively normalises nested objects', () => {
+    const result = normaliseValues({
+      date: new Date('2026-01-01T00:00:00Z'),
+      nested: {
+        regex: /test/i,
+      },
+    });
+    expect(result).toEqual({
+      date: '2026-01-01T00:00:00.000Z',
+      nested: {
+        regex: '/test/i',
+      },
+    });
+  });
+
+  it('passes through primitives unchanged', () => {
+    expect(normaliseValues('hello')).toBe('hello');
+    expect(normaliseValues(42)).toBe(42);
+    expect(normaliseValues(true)).toBe(true);
+    expect(normaliseValues(null)).toBe(null);
   });
 });
 

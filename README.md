@@ -134,6 +134,7 @@ packages/
 | `convertConfig(input, inputFormat, outputFormat, options?)` | Parse input string and serialize to the target format. Returns `{ output, error }`. |
 | `detectFormat(input)` | Auto-detect the format (yaml/json/toml) of a configuration string using heuristics. |
 | `isConverterState(value)` | Type guard for safe deserialization of imported/shared state. |
+| `normaliseValues(value)` | Deeply transforms non-serializable JS values (`Date`, `BigInt`, `Map`, `Set`, `RegExp`, `Symbol`, `undefined`) into JSON-safe equivalents. Used internally before serialization; exported for advanced use cases. |
 
 ### `types.ts`
 

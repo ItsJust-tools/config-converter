@@ -95,7 +95,7 @@ export function convertConfig(
 
     // Recursively sort object keys if requested
     if (sortKeys && typeof parsed === 'object' && parsed !== null) {
-      parsed = sortObjectKeys(parsed as Record<string, unknown>);
+      parsed = sortObjectKeys(parsed as Record<string, unknown> | unknown[]);
     }
 
     // Normalise parsed data: convert non-serializable values (e.g. Date from TOML)
@@ -153,6 +153,9 @@ export function convertConfig(
  * - `BigInt` → number (via `Number()`, may lose precision for very large integers)
  * - `Map` → plain object literal (keys coerced to strings)
  * - `Set` → plain array (order preserved)
+ * - `RegExp` → string representation (e.g. `/pattern/flags`)
+ * - `Symbol` → description string (or empty string for anonymous symbols)
+ * - `undefined` is skipped entirely for object values to avoid holes
  * - Arrays are mapped element-by-element
  * - Plain objects are recursed into (keys unchanged)
  * - Primitives pass through unchanged
@@ -160,7 +163,7 @@ export function convertConfig(
  * @param value - Any value that may contain non-serialisable types.
  * @returns A deeply-normalised, JSON-safe copy of the input.
  */
-function normaliseValues(value: unknown): unknown {
+export function normaliseValues(value: unknown): unknown {
   if (value instanceof Date) {
     return value.toISOString();
   }
@@ -179,13 +182,24 @@ function normaliseValues(value: unknown): unknown {
   if (value instanceof Set) {
     return Array.from(value).map(normaliseValues);
   }
+  if (value instanceof RegExp) {
+    // YAML can produce RegExp via !!js/regexp tags; convert to a portable string form
+    return value.toString();
+  }
+  if (typeof value === 'symbol') {
+    // Symbols cannot be serialised to JSON/YAML; use their description
+    return value.description ?? '';
+  }
   if (Array.isArray(value)) {
     return value.map(normaliseValues);
   }
   if (typeof value === 'object' && value !== null) {
     const obj: Record<string, unknown> = {};
     for (const key of Object.keys(value as Record<string, unknown>)) {
-      obj[key] = normaliseValues((value as Record<string, unknown>)[key]);
+      const v = (value as Record<string, unknown>)[key];
+      if (v !== undefined) {
+        obj[key] = normaliseValues(v);
+      }
     }
     return obj;
   }
@@ -288,17 +302,16 @@ function tryParseJson(input: string): boolean {
  * @param obj - The object whose keys should be sorted (never mutated).
  * @returns A new object with all keys sorted at every nesting level.
  */
-function sortObjectKeys(obj: Record<string, unknown>): Record<string, unknown> {
+function sortObjectKeys(
+  obj: Record<string, unknown> | unknown[]
+): Record<string, unknown> | unknown[] {
   // If the value is actually an array, process each element's keys but preserve array order
   if (Array.isArray(obj)) {
-    // For arrays, we can't meaningfully sort keys — return the sorted elements as-is.
-    // The outer caller wraps array results back into Record<string, unknown> for the
-    // convenience of the calling code which expects that type.
     return obj.map((item) =>
       typeof item === 'object' && item !== null
-        ? sortObjectKeys(item as Record<string, unknown>)
+        ? sortObjectKeys(item as Record<string, unknown> | unknown[])
         : item
-    ) as unknown as Record<string, unknown>;
+    );
   }
 
   const sorted: Record<string, unknown> = {};
@@ -306,7 +319,7 @@ function sortObjectKeys(obj: Record<string, unknown>): Record<string, unknown> {
   for (const key of keys) {
     const value = obj[key];
     if (typeof value === 'object' && value !== null) {
-      sorted[key] = sortObjectKeys(value as Record<string, unknown>);
+      sorted[key] = sortObjectKeys(value as Record<string, unknown> | unknown[]);
     } else {
       sorted[key] = value;
     }
