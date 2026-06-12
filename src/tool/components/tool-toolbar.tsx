@@ -16,6 +16,20 @@ interface ToolToolbarProps {
   onClear: () => void;
 }
 
+/** Shared style for kbd elements in toolbar buttons. */
+const kbdStyle: React.CSSProperties = {
+  fontSize: '0.5625rem',
+  marginLeft: '0.25rem',
+  padding: '0.0625rem 0.3125rem',
+  borderRadius: '0.1875rem',
+  border: '1px solid var(--border)',
+  background: 'var(--muted-bg)',
+  color: 'var(--muted)',
+  fontFamily: 'inherit',
+  lineHeight: 1.3,
+  opacity: 0.7,
+};
+
 /**
  * Toolbar for the Config Converter tool.
  *
@@ -52,16 +66,16 @@ export function ToolToolbar({
           aria-label="Convert"
           disabled={!state.input.trim()}
         >
-          Convert
+          Convert<kbd style={kbdStyle}>&#x2303;&#x21A9;</kbd>
         </button>
         <button
           type="button"
           className="converter-btn converter-btn-secondary"
           onClick={onSwapFormats}
           aria-label="Swap input and output formats"
-          title="Swap formats"
+          title="Swap formats (Ctrl+Shift+S)"
         >
-          ⇄ Swap
+          &#x21C4; Swap<kbd style={kbdStyle}>&#x2303;&#x21E7;S</kbd>
         </button>
         {state.output && (
           <button
@@ -69,8 +83,9 @@ export function ToolToolbar({
             className="converter-btn converter-btn-secondary"
             onClick={onCopyOutput}
             aria-label="Copy output to clipboard"
+            title="Copy output (Ctrl+Shift+C)"
           >
-            Copy Output
+            Copy Output<kbd style={kbdStyle}>&#x2303;&#x21E7;C</kbd>
           </button>
         )}
         <button
@@ -78,8 +93,9 @@ export function ToolToolbar({
           className="converter-btn converter-btn-outline"
           onClick={onClear}
           aria-label="Clear all"
+          title="Clear all (Ctrl+Shift+X)"
         >
-          Clear
+          Clear<kbd style={kbdStyle}>&#x2303;&#x21E7;X</kbd>
         </button>
       </div>
     </div>

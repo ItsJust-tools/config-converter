@@ -13,6 +13,7 @@ import {
   ToolSidebar,
 } from '@/tool';
 import type { ConversionFormat } from '@/tool';
+import { copyToClipboard } from '@/tool/clipboard';
 
 export default function ToolClient() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -108,8 +109,12 @@ export default function ToolClient() {
 
   const handleCopyOutput = useCallback(async () => {
     if (tool.state.data.output) {
-      await navigator.clipboard.writeText(tool.state.data.output);
-      showToast('Output copied to clipboard', 'success');
+      const ok = await copyToClipboard(tool.state.data.output);
+      if (ok) {
+        showToast('Output copied to clipboard', 'success');
+      } else {
+        showToast('Failed to copy output - clipboard unavailable', 'error');
+      }
     }
   }, [tool.state.data.output, showToast]);
 
@@ -299,7 +304,16 @@ export default function ToolClient() {
     />
   );
 
-  const canvasContent = <ToolCanvas canvasRef={canvasRef} state={tool.state.data} />;
+  const handleCanvasCopy = useCallback(
+    (_text: string, status: string) => {
+      showToast(status, status.startsWith('Failed') ? 'error' : 'success');
+    },
+    [showToast]
+  );
+
+  const canvasContent = (
+    <ToolCanvas canvasRef={canvasRef} state={tool.state.data} onCopy={handleCanvasCopy} />
+  );
 
   const statusBarContent = (
     <>

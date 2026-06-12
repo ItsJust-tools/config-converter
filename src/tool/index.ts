@@ -5,4 +5,5 @@ export { converterTool, convertConfig } from './tool-definition';
 export { ToolCanvas } from './components/tool-canvas';
 export { ToolToolbar } from './components/tool-toolbar';
 export { ToolSidebar } from './components/tool-sidebar';
+export { copyToClipboard, copyWithStatus } from './clipboard';
 export type { ConverterState, ConversionFormat } from './types';

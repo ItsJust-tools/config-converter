@@ -1,7 +1,9 @@
 'use client';
 
+import { useCallback } from 'react';
 import type { ConverterState } from '../types';
 import { detectFormat } from '../converter';
+import { copyWithStatus } from '../clipboard';
 
 /** Props for the {@link ToolCanvas} component. */
 interface ToolCanvasProps {
@@ -9,6 +11,8 @@ interface ToolCanvasProps {
   state: ConverterState;
   /** Optional ref forwarded to the root element for export/screenshot purposes. */
   canvasRef?: React.RefObject<HTMLDivElement | null>;
+  /** Callback invoked after a copy action completes, with the status message. */
+  onCopy?: (text: string, label: string) => void;
 }
 
 /**
@@ -26,7 +30,7 @@ interface ToolCanvasProps {
  * <ToolCanvas state={state} canvasRef={ref} />
  * ```
  */
-export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
+export function ToolCanvas({ state, canvasRef, onCopy }: ToolCanvasProps) {
   const outputLength = state.output.length;
   const hasInput = state.input.trim().length > 0;
   const detectedFormat =
@@ -35,6 +39,13 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
     state.inputFormat === 'auto'
       ? `Auto${detectedFormat ? ` (${detectedFormat.toUpperCase()})` : ''}`
       : state.inputFormat.toUpperCase();
+
+  /** Handle copying the output to clipboard */
+  const handleCopyOutput = useCallback(async () => {
+    if (!state.output) return;
+    const status = await copyWithStatus(state.output, 'Output');
+    onCopy?.(state.output, status);
+  }, [state.output, onCopy]);
 
   return (
     <div
@@ -75,7 +86,18 @@ export function ToolCanvas({ state, canvasRef }: ToolCanvasProps) {
           <span className="converter-pane-label">Output ({state.outputFormat.toUpperCase()})</span>
           <div className="converter-pane-actions">
             {outputLength > 0 && (
-              <span className="converter-pane-stats">{outputLength.toLocaleString()} chars</span>
+              <>
+                <button
+                  type="button"
+                  className="converter-btn converter-btn-copy"
+                  onClick={handleCopyOutput}
+                  aria-label="Copy output to clipboard"
+                  title="Copy output (Ctrl+Shift+C)"
+                >
+                  Copy
+                </button>
+                <span className="converter-pane-stats">{outputLength.toLocaleString()} chars</span>
+              </>
             )}
           </div>
         </div>
