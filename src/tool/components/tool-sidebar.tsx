@@ -1,6 +1,8 @@
 'use client';
 
+import { useCallback, useRef } from 'react';
 import type { ConverterState, ConversionFormat } from '../types';
+import { detectFormat } from '../converter';
 
 /** Props for the {@link ToolSidebar} component. */
 interface ToolSidebarProps {
@@ -18,16 +20,91 @@ interface ToolSidebarProps {
   onIndentSizeChange: (size: number) => void;
   /** Called when the user toggles alphabetical key sorting. */
   onSortKeysToggle: (sortKeys: boolean) => void;
+  /** Called when the user wants to load a sample configuration. */
+  onLoadSample?: (sample: string) => void;
 }
+
+/**
+ * Sample configurations for each input format, providing quick-start examples
+ * so users can try the tool without typing anything.
+ */
+const SAMPLE_CONFIGS: Record<
+  Exclude<ConversionFormat, 'auto'>,
+  { label: string; content: string }
+> = {
+  yaml: {
+    label: 'YAML',
+    content: `# Server Configuration
+server:
+  host: localhost
+  port: 8080
+  ssl: false
+  timeout: 30
+
+# Database Settings
+database:
+  driver: postgresql
+  host: db.example.com
+  port: 5432
+  name: myapp
+  pool:
+    min: 2
+    max: 10
+
+# Logging
+logging:
+  level: info
+  file: /var/log/app.log`,
+  },
+  json: {
+    label: 'JSON',
+    content: `{
+  "name": "Config Converter",
+  "version": "1.0.0",
+  "description": "Convert between YAML, JSON, and TOML",
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "smol-toml": "^1.3.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "test": "vitest run"
+  }
+}`,
+  },
+  toml: {
+    label: 'TOML',
+    content: `[package]
+name = "config-converter"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+
+[profile.release]
+opt-level = 3
+lto = true
+
+[workspace]
+members = ["packages/*"]`,
+  },
+};
 
 /**
  * Sidebar panel for the Config Converter tool.
  *
  * Provides format selection (input/output), a textarea for pasting configuration,
- * and toggles for minification, key sorting, and indent size.
+ * and toggles for minification, key sorting, and indent size. Includes a "Load sample"
+ * feature to quickly populate the textarea with predefined examples.
  *
  * The textarea handles Tab key insertion so users can indent configuration text
  * without losing focus.
+ *
+ * When input format is set to "Auto", a detected-format badge is shown next to
+ * the Configuration label.
  *
  * @example
  * ```tsx
@@ -48,6 +125,7 @@ export function ToolSidebar({
   onMinifyToggle,
   onIndentSizeChange,
   onSortKeysToggle,
+  onLoadSample,
 }: ToolSidebarProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab') {
@@ -64,6 +142,23 @@ export function ToolSidebar({
       });
     }
   };
+
+  const hasInput = state.input.trim().length > 0;
+  const detectedFormat =
+    state.inputFormat === 'auto' && hasInput ? detectFormat(state.input) : null;
+  const resolvedFormat =
+    state.inputFormat === 'auto' ? detectedFormat || 'yaml' : state.inputFormat;
+
+  const handleLoadSample = useCallback(
+    (format: Exclude<ConversionFormat, 'auto'>) => {
+      const sample = SAMPLE_CONFIGS[format];
+      if (sample) {
+        onInputFormatChange(format);
+        onLoadSample?.(sample.content);
+      }
+    },
+    [onInputFormatChange, onLoadSample]
+  );
 
   return (
     <div className="converter-sidebar">
@@ -111,9 +206,32 @@ export function ToolSidebar({
 
       {/* Input area */}
       <div className="converter-sidebar-section converter-sidebar-section-grow">
-        <label className="converter-sidebar-label" htmlFor="converter-input">
-          Configuration
-        </label>
+        <div className="converter-sidebar-label-row">
+          <label className="converter-sidebar-label" htmlFor="converter-input">
+            Configuration
+            {state.inputFormat === 'auto' && detectedFormat && hasInput && (
+              <span className="converter-detected-format" title="Detected format">
+                (detected: {detectedFormat.toUpperCase()})
+              </span>
+            )}
+          </label>
+          <span className="converter-load-sample-group">
+            <span className="converter-load-sample-label">Load sample:</span>
+            {(Object.keys(SAMPLE_CONFIGS) as Array<Exclude<ConversionFormat, 'auto'>>).map(
+              (fmt) => (
+                <button
+                  key={fmt}
+                  type="button"
+                  className="converter-load-sample-btn"
+                  onClick={() => handleLoadSample(fmt)}
+                  aria-label={`Load ${fmt.toUpperCase()} sample`}
+                >
+                  {fmt.toUpperCase()}
+                </button>
+              )
+            )}
+          </span>
+        </div>
         <textarea
           id="converter-input"
           className="converter-sidebar-textarea"

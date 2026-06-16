@@ -159,8 +159,9 @@ describe('app and seo', () => {
       </>
     );
 
-    expect(screen.getAllByText('YAML').length).toBe(2);
-    expect(screen.getAllByText('JSON').length).toBe(2);
+    // Two YAML label instances: the format radio button and the load-sample button
+    expect(screen.getAllByText('YAML').length).toBe(3);
+    expect(screen.getAllByText('JSON').length).toBe(3);
     expect(screen.getByText('Convert')).toBeInTheDocument();
     expect(screen.getByRole('application', { name: 'Config Converter' })).toBeInTheDocument();
   });

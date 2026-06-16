@@ -301,6 +301,7 @@ export default function ToolClient() {
       onMinifyToggle={handleMinifyToggle}
       onIndentSizeChange={handleIndentSizeChange}
       onSortKeysToggle={handleSortKeysToggle}
+      onLoadSample={handleInputChange}
     />
   );
 
