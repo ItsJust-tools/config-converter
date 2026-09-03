@@ -67,15 +67,15 @@
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.6",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.2",
-    "@vitest/coverage-v8": "^4.1.6",
+    "@vitest/coverage-v8": "^4.1.11",
     "depcheck": "^1.4.7",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
@@ -87,7 +87,7 @@
     "tailwindcss": "^4",
     "tsup": "^8.5.1",
     "typescript": "^6",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.11"
   },
   "optionalDependencies": {
     "@emnapi/runtime": "^1.10.0"
