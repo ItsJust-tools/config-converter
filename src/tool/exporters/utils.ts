@@ -1,4 +1,5 @@
 import type { ExportFormat, ExportOptions, ExportResult, Exporter } from '@itsjust/core';
+import { sanitizeFilename } from '@itsjust/core';
 import { toBlob } from 'html-to-image';
 
 export function formatExportError(error: unknown, format: string): string {
@@ -163,14 +164,14 @@ export function createCanvasExporter(
         return {
           success: true,
           data: blob,
-          filename: options.filename ?? `export-${Date.now()}.${defaultExt}`,
+          filename: sanitizeFilename(options.filename ?? `export-${Date.now()}.${defaultExt}`),
           format,
         };
       } catch (error) {
         return {
           success: false,
           data: null,
-          filename: options.filename ?? `export-${Date.now()}.${defaultExt}`,
+          filename: sanitizeFilename(options.filename ?? `export-${Date.now()}.${defaultExt}`),
           format,
           error: formatExportError(error, format.toUpperCase()),
         };

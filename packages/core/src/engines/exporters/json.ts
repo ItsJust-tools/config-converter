@@ -1,4 +1,5 @@
 import type { Exporter } from '../../types';
+import { sanitizeFilename } from '../../utils/sanitize-filename';
 
 const jsonExporter: Exporter = {
   format: 'json',
@@ -8,14 +9,14 @@ const jsonExporter: Exporter = {
       return {
         success: true,
         data: jsonString,
-        filename: options.filename ?? `export-${Date.now()}.json`,
+        filename: sanitizeFilename(options.filename ?? `export-${Date.now()}.json`),
         format: 'json',
       };
     } catch (error) {
       return {
         success: false,
         data: null,
-        filename: options.filename ?? `export-${Date.now()}.json`,
+        filename: sanitizeFilename(options.filename ?? `export-${Date.now()}.json`),
         format: 'json',
         error: error instanceof Error ? error.message : 'JSON export failed',
       };

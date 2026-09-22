@@ -672,4 +672,74 @@ describe('exporters', () => {
       appendChildSpy.mockRestore();
     });
   });
+
+  describe('filename sanitization (issue #74)', () => {
+    it('sanitizes dirty filenames in canvas exporter success results', async () => {
+      const el = document.createElement('div');
+      el.className = 'notepad-canvas';
+
+      toBlobMock.mockResolvedValue(new Blob(['fake-image'], { type: 'image/png' }));
+
+      const originalImage = globalThis.Image;
+      vi.stubGlobal('Image', mockImageClass(10, 10));
+
+      const exporter = createCanvasExporter('png', 'image/png', 'png');
+      const result = await exporter.export(
+        el,
+        makeOptions({ format: 'png', filename: 'my: image*?.png', allowSensitiveData: true })
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.filename).toBe('my- image--.png');
+
+      vi.stubGlobal('Image', originalImage);
+    });
+
+    it('sanitizes dirty filenames in canvas exporter failure results', async () => {
+      const el = document.createElement('div');
+      el.className = 'notepad-canvas';
+
+      toBlobMock.mockResolvedValue(null);
+
+      const exporter = createCanvasExporter('png', 'image/png', 'png');
+      const result = await exporter.export(
+        el,
+        makeOptions({ format: 'png', filename: 'fail:ure?.png', allowSensitiveData: true })
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.filename).toBe('fail-ure-.png');
+    });
+
+    it('sanitizes dirty filenames in pdf exporter results', async () => {
+      const el = document.createElement('div');
+      el.textContent = 'pdf text';
+
+      const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation((node) => {
+        if (node instanceof HTMLIFrameElement || (node as HTMLElement).tagName === 'IFRAME') {
+          const iframe = node as HTMLIFrameElement;
+          const mockDoc = { open: vi.fn(), write: vi.fn(), close: vi.fn() };
+          Object.defineProperty(iframe, 'contentDocument', {
+            get: () => mockDoc,
+            configurable: true,
+          });
+          Object.defineProperty(iframe, 'contentWindow', {
+            get: () => ({ print: vi.fn() }),
+            configurable: true,
+          });
+        }
+        return node;
+      });
+
+      const result = await pdfExporter.export(
+        el,
+        makeOptions({ format: 'pdf', filename: 'pdf: file?.pdf', allowSensitiveData: true })
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.filename).toBe('pdf- file-.pdf');
+
+      appendChildSpy.mockRestore();
+    });
+  });
 });

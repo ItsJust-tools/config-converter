@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.4.2 (2026-09-22)
+
+- Fixed export filename sanitization (issue #74): generated filenames for PNG, JPEG, WebP, JSON, PDF, and share downloads are now sanitized against invalid OS characters (`/ \ : * ? " < > |` and `%`), control characters, reserved leading/trailing dots, and are limited to 100 characters while preserving the extension
+- Added `sanitizeFilename` utility (exported from `@itsjust/core` with `MAX_EXPORT_FILENAME_LENGTH`); applied at every export/download choke point (export engine, JSON/PDF/canvas exporters, share download and Web Share) including defense-in-depth sanitization of custom exporters' results
+
 ## v1.4.1 (2026-06-03)
 
 - Updated outdated dependencies: js-yaml@4.2.0, next@16.2.7, react@19.2.7, react-dom@19.2.7, @types/react@19.2.16, @vitejs/plugin-react@6.0.2, @vitest/coverage-v8@4.1.8, vitest@4.1.8, eslint-config-next@16.2.7, lint-staged@17.0.7, lucide-react@1.17.0

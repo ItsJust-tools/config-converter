@@ -70,7 +70,13 @@ describe('ExportEngine', () => {
     URL.createObjectURL = vi.fn(() => 'blob:test');
     URL.revokeObjectURL = vi.fn();
 
-    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement
+    ) {
+      // Capture the sanitized download attribute at click time.
+      lastDownloadName = this.download;
+    });
+    let lastDownloadName = '';
 
     await engine.exportAndDownload(
       document.createElement('div'),
@@ -79,6 +85,7 @@ describe('ExportEngine', () => {
     );
 
     expect(clickSpy).toHaveBeenCalled();
+    expect(lastDownloadName).toBe('test.json');
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
 
     await vi.advanceTimersByTimeAsync(10000);
@@ -88,5 +95,57 @@ describe('ExportEngine', () => {
     URL.createObjectURL = originalCreateObjectURL;
     URL.revokeObjectURL = originalRevokeObjectURL;
     vi.useRealTimers();
+  });
+
+  it('sanitizes unsafe filenames before download (issue #74)', async () => {
+    vi.useFakeTimers();
+    const engine = new ExportEngine();
+    const originalCreateObjectURL = URL.createObjectURL;
+    const originalRevokeObjectURL = URL.revokeObjectURL;
+    URL.createObjectURL = vi.fn(() => 'blob:test');
+    URL.revokeObjectURL = vi.fn();
+
+    let lastDownloadName = '';
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement
+    ) {
+      lastDownloadName = this.download;
+    });
+
+    const result = await engine.exportAndDownload(
+      document.createElement('div'),
+      { format: 'json', filename: 'bad: name?.json' },
+      () => '{"test":true}'
+    );
+
+    expect(result.success).toBe(true);
+    // Result filename is sanitized by the exporter itself.
+    expect(result.filename).toBe('bad- name-.json');
+    // The anchor download attribute is also sanitized.
+    expect(lastDownloadName).toBe('bad- name-.json');
+
+    clickSpy.mockRestore();
+    URL.createObjectURL = originalCreateObjectURL;
+    URL.revokeObjectURL = originalRevokeObjectURL;
+    vi.useRealTimers();
+  });
+
+  it('sanitizes filenames returned by custom exporters (defense in depth)', async () => {
+    const engine = new ExportEngine();
+    engine.registerExporter({
+      format: 'json',
+      export: async () => ({
+        success: true,
+        data: '{}',
+        filename: 'evil:name*with?bad.chars.json',
+        format: 'json',
+      }),
+    });
+
+    const result = await engine.export(document.createElement('div'), {
+      format: 'json',
+    } as ExportOptions);
+    expect(result.success).toBe(true);
+    expect(result.filename).toBe('evil-name-with-bad.chars.json');
   });
 });

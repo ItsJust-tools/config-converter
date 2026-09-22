@@ -104,6 +104,10 @@ export type { ImportExportProps } from './components/import-export/import-export
 /** ErrorBoundary — Catch React render errors and show a fallback UI. */
 export { ErrorBoundary } from './components/error-boundary/error-boundary';
 
+// Utils
+/** Sanitize a filename against invalid OS characters, reserved dots and excess length. */
+export { sanitizeFilename, MAX_EXPORT_FILENAME_LENGTH } from './utils/sanitize-filename';
+
 // i18n
 /** Minimal i18n string map and helper. */
 export { t } from './i18n/strings';

@@ -189,4 +189,45 @@ describe('useShare', () => {
     expect(success).toBe(false);
     expect(result.current.error).toBe('Clipboard blocked');
   });
+
+  it('sanitizes unsafe filenames in downloads (issue #74)', async () => {
+    const { result } = renderHook(() => useShare());
+    let lastDownloadName = '';
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement
+    ) {
+      lastDownloadName = this.download;
+    });
+
+    await act(async () => {
+      await result.current.downloadShareFile(
+        { toolId: 'test', content: '{}' },
+        'my: bad*file?.itsjust.json'
+      );
+    });
+
+    expect(lastDownloadName).toBe('my- bad-file-.itsjust.json');
+
+    clickSpy.mockRestore();
+  });
+
+  it('sanitizes unsafe filenames in web share File name (issue #74)', async () => {
+    const shareSpy = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, {
+      share: shareSpy,
+      canShare: vi.fn().mockReturnValue(true),
+    });
+    const { result } = renderHook(() => useShare());
+
+    const success = await act(async () => {
+      return result.current.shareViaWeb(
+        { toolId: 'test', content: '{}' },
+        'weird: name?.itsjust.json'
+      );
+    });
+
+    expect(success).toBe(true);
+    const sharedFile = shareSpy.mock.calls[0]?.[0].files[0] as File;
+    expect(sharedFile.name).toBe('weird- name-.itsjust.json');
+  });
 });
