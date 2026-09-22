@@ -1,4 +1,5 @@
 import type { Exporter } from '@itsjust/core';
+import { sanitizeFilename } from '@itsjust/core';
 import { formatExportError, throwIfAborted } from './utils';
 
 function collectStyles(): string {
@@ -115,14 +116,14 @@ const pdfExporter: Exporter = {
       return {
         success: true,
         data: null,
-        filename: options.filename ?? `export-${Date.now()}.pdf`,
+        filename: sanitizeFilename(options.filename ?? `export-${Date.now()}.pdf`),
         format: 'pdf',
       };
     } catch (error) {
       return {
         success: false,
         data: null,
-        filename: options.filename ?? `export-${Date.now()}.pdf`,
+        filename: sanitizeFilename(options.filename ?? `export-${Date.now()}.pdf`),
         format: 'pdf',
         error: formatExportError(error, 'PDF'),
       };

@@ -1,4 +1,5 @@
 import type { ExportFormat, ExportOptions, ExportResult, Exporter, ExporterLoader } from '../types';
+import { sanitizeFilename } from '../utils/sanitize-filename';
 import { jsonExporter, exporterLoaders } from './exporters';
 
 const ALLOWED_DOWNLOAD_TYPES = new Set([
@@ -24,7 +25,7 @@ function triggerDownload(result: ExportResult): void {
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = result.filename.replace(/[\/\\:?*"<>|]/g, '_');
+  link.download = sanitizeFilename(result.filename);
   link.style.display = 'none';
   if (!document.body) {
     console.error('[triggerDownload] Document body is not ready');
@@ -111,7 +112,12 @@ export class ExportEngine {
         error: `No exporter registered for format: ${options.format}`,
       };
     }
-    return exporter.export(element, options, stateSerializer);
+    return exporter.export(element, options, stateSerializer).then((result) => ({
+      ...result,
+      // Defense in depth: sanitize even custom exporters' filenames so
+      // third-party exporters cannot bypass filename validation.
+      filename: result.success ? sanitizeFilename(result.filename) : result.filename,
+    }));
   }
 
   async exportAndDownload(

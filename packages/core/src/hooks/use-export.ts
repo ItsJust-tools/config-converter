@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ExportFormat, ExportOptions, ToolConfig, ExporterLoader } from '../types';
 import { createExportEngine } from '../engines/export-engine';
+import { sanitizeFilename } from '../utils/sanitize-filename';
 
 function getAvailableFormats(
   exporters?: Array<{ format: ExportFormat; loader: ExporterLoader }>
@@ -88,7 +89,7 @@ export function useExport(
         return {
           success: false,
           data: null,
-          filename: options?.filename ?? `export-${Date.now()}`,
+          filename: sanitizeFilename(options?.filename ?? `export-${Date.now()}`),
           format,
           error: 'Export target is not ready',
         };
@@ -114,7 +115,7 @@ export function useExport(
         return {
           success: false,
           data: null,
-          filename: options?.filename ?? `export-${Date.now()}`,
+          filename: sanitizeFilename(options?.filename ?? `export-${Date.now()}`),
           format,
           error: message,
         };
