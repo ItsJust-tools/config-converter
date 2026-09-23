@@ -1,5 +1,11 @@
 import type { StorageData } from '../types';
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
+import {
+  safeGetItem,
+  safeRemoveItem,
+  isQuotaError,
+  emitStorageWarning,
+} from '../utils/storage-events';
 
 export type StorageLoadStatus = 'missing' | 'ok' | 'corrupt';
 
@@ -43,6 +49,14 @@ export class StorageManager {
     try {
       localStorage.setItem(this.key(key), JSON.stringify(entry));
     } catch (error) {
+      // Emit a storage-warning event so the UI can surface a non-intrusive
+      // toast (deduplicated there) even though the error propagates.
+      emitStorageWarning({
+        storage: 'local',
+        kind: isQuotaError(error) ? 'quota' : 'unavailable',
+        operation: 'set',
+        key: this.key(key),
+      });
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
         console.warn(`[StorageManager] Quota exceeded saving "${key}"`);
       } else {
@@ -53,7 +67,7 @@ export class StorageManager {
   }
 
   loadEntry<T>(key: string, expectedVersion?: string): StorageLoadResult<T> {
-    const raw = localStorage.getItem(this.key(key));
+    const raw = safeGetItem('local', this.key(key));
     if (!raw) return { status: 'missing', data: null };
     try {
       const entry: StorageData<unknown> = JSON.parse(raw);
@@ -84,7 +98,7 @@ export class StorageManager {
   }
 
   remove(key: string): void {
-    localStorage.removeItem(this.key(key));
+    safeRemoveItem('local', this.key(key));
   }
 }
 

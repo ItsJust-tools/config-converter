@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { t as tt } from '../../i18n/strings';
+import { getStorageWarningEventName } from '../../utils/storage-events';
 
 interface Toast {
   id: number;
@@ -110,6 +111,23 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     }, 3000);
     timersRef.current.add(t2);
   }, []);
+
+  // Surface storage failures (quota exceeded / private browsing) as a
+  // non-intrusive warning toast. Deduplicated so a burst of failing writes
+  // (e.g. rapid undo history persistence) only notifies once per window.
+  useEffect(() => {
+    const eventName = getStorageWarningEventName();
+    let lastWarningAt = 0;
+    const handleStorageWarning = (event: Event) => {
+      if (event instanceof CustomEvent && event.detail?.storage === 'session') return;
+      const now = Date.now();
+      if (now - lastWarningAt < 5000) return;
+      lastWarningAt = now;
+      addToast(tt('storageWarning'), 'info');
+    };
+    window.addEventListener(eventName, handleStorageWarning);
+    return () => window.removeEventListener(eventName, handleStorageWarning);
+  }, [addToast]);
 
   const dismissToast = useCallback((id: number) => {
     setToasts((prev) => prev.map((t) => (t.id === id ? { ...t, exiting: true } : t)));

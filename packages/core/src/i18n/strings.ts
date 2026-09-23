@@ -42,6 +42,7 @@ export const strings = {
     toolToolbar: 'Tool toolbar',
     importExport: 'Import and Export',
     rename: 'Rename',
+    storageWarning: 'Storage is full or unavailable — changes may not be saved in this session.',
   },
 } as const;
 
