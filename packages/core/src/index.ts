@@ -107,6 +107,17 @@ export { ErrorBoundary } from './components/error-boundary/error-boundary';
 // Utils
 /** Sanitize a filename against invalid OS characters, reserved dots and excess length. */
 export { sanitizeFilename, MAX_EXPORT_FILENAME_LENGTH } from './utils/sanitize-filename';
+/** Defensive storage access that never throws — emits `itsjust:storage-warning` on failure. */
+export {
+  safeLocalStorage,
+  safeSessionStorage,
+  getStorageWarningEventName,
+} from './utils/storage-events';
+export type {
+  StorageWarningDetail,
+  StorageWarningEvent,
+  StorageWarningKind,
+} from './utils/storage-events';
 
 // i18n
 /** Minimal i18n string map and helper. */
