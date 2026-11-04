@@ -9,7 +9,8 @@ import {
 /**
  * Test helper: installs a mock `navigator.clipboard` (or removes it entirely).
  */
-function setClipboardApi(value: { writeText: ReturnType<typeof vi.fn> } | undefined) {
+type ClipboardApiLike = { writeText: ReturnType<typeof vi.fn> } | Clipboard | undefined;
+function setClipboardApi(value: ClipboardApiLike) {
   Object.defineProperty(navigator, 'clipboard', {
     configurable: true,
     writable: true,

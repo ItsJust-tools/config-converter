@@ -125,7 +125,7 @@ describe('convertConfig', () => {
     });
 
     it('returns error for invalid YAML syntax', () => {
-      const result = convertConfig(': broken yaml :', 'yaml', 'json');
+      const result = convertConfig('foo: *nonexistent-anchor', 'yaml', 'json');
       expect(result.output).toBe('');
       expect(result.error).toContain('Conversion error');
     });

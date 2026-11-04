@@ -28,7 +28,8 @@ describe('storage-events', () => {
   }
 
   function track<T extends object, K extends keyof T>(obj: T, key: K) {
-    const spy = vi.spyOn(obj, key);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const spy = vi.spyOn(obj as any, key as any);
     storageSpies.push(spy as unknown as ReturnType<typeof vi.spyOn>);
     return spy;
   }
