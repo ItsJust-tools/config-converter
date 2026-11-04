@@ -1,4 +1,4 @@
-import jsYaml from 'js-yaml';
+import { load as yamlLoad, dump as yamlDump } from 'js-yaml';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 import type { ConversionFormat } from './types';
 import { YAMLException } from 'js-yaml';
@@ -71,7 +71,7 @@ export function convertConfig(
 
     switch (resolvedFormat) {
       case 'yaml': {
-        parsed = jsYaml.load(input);
+        parsed = yamlLoad(input);
         break;
       }
       case 'json': {
@@ -107,7 +107,7 @@ export function convertConfig(
 
     switch (outputFormat) {
       case 'yaml': {
-        output = jsYaml.dump(normalised, {
+        output = yamlDump(normalised, {
           indent: indentSize,
           lineWidth: minify ? 200 : 80,
           noRefs: true,
