@@ -240,3 +240,52 @@ describe('convertConfig', () => {
     });
   });
 });
+
+describe('key order preservation (issue #62)', () => {
+  it('preserves key order in YAML output for YAML input', () => {
+    const result = convertConfig('zeta: 1\nalpha: 2\nmid: 3\n', 'yaml', 'yaml');
+    expect(result.error).toBe('');
+    const keys = result.output
+      .split('\n')
+      .filter((l) => /^[\w-]+:/.test(l))
+      .map((l) => l.split(':')[0]?.trim() ?? '');
+    expect(keys).toEqual(['zeta', 'alpha', 'mid']);
+  });
+
+  it('preserves key order in JSON output for YAML input', () => {
+    const result = convertConfig('zebra: 1\napple: 2\nmango: 3\n', 'yaml', 'json');
+    expect(result.error).toBe('');
+    expect(Object.keys(JSON.parse(result.output))).toEqual(['zebra', 'apple', 'mango']);
+  });
+
+  it('preserves key order in JSON output for TOML input', () => {
+    const input = '[server]\nport = 8080\nhost = "localhost"\n';
+    const result = convertConfig(input, 'toml', 'json');
+    expect(result.error).toBe('');
+    expect(Object.keys(JSON.parse(result.output))).toEqual(['server']);
+    expect(Object.keys(JSON.parse(result.output).server)).toEqual(['port', 'host']);
+  });
+
+  it('preserves key order in YAML output for JSON input', () => {
+    const result = convertConfig('{"mango": 3, "apple": 2, "zebra": 1}', 'json', 'yaml');
+    expect(result.error).toBe('');
+    const keys = result.output
+      .split('\n')
+      .filter((l) => /^[\w-]+:/.test(l))
+      .map((l) => l.split(':')[0]?.trim() ?? '');
+    expect(keys).toEqual(['mango', 'apple', 'zebra']);
+  });
+
+  it('sorts keys only when sortKeys is enabled', () => {
+    const result = convertConfig('zebra: 1\napple: 2\n', 'yaml', 'json', { sortKeys: true });
+    expect(result.error).toBe('');
+    expect(Object.keys(JSON.parse(result.output))).toEqual(['apple', 'zebra']);
+  });
+
+  it('preserves nested key order through YAML round trip', () => {
+    const input = 'outer:\n  zz: 1\n  aa: 2\nother: 3\n';
+    const result = convertConfig(input, 'yaml', 'yaml');
+    expect(result.error).toBe('');
+    expect(result.output.indexOf('zz')).toBeLessThan(result.output.indexOf('aa'));
+  });
+});

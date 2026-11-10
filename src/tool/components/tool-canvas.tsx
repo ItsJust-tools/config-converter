@@ -30,7 +30,11 @@ interface ToolCanvasProps {
  * <ToolCanvas state={state} canvasRef={ref} />
  * ```
  */
-export function ToolCanvas({ state, canvasRef, onCopy }: ToolCanvasProps) {
+export function ToolCanvas({
+  state,
+  canvasRef,
+  onCopy,
+}: ToolCanvasProps) {
   const outputLength = state.output.length;
   const hasInput = state.input.trim().length > 0;
   const detectedFormat =
@@ -39,6 +43,10 @@ export function ToolCanvas({ state, canvasRef, onCopy }: ToolCanvasProps) {
     state.inputFormat === 'auto'
       ? `Auto${detectedFormat ? ` (${detectedFormat.toUpperCase()})` : ''}`
       : state.inputFormat.toUpperCase();
+
+  // Show a subtle hint when the input contains comments (# …), which are
+  // dropped because conversion parses to structured data.
+  const hasCommentIndicator = hasInput && /(^|\n)\s*#/.test(state.input);
 
   /** Handle copying the output to clipboard */
   const handleCopyOutput = useCallback(async () => {
@@ -61,7 +69,13 @@ export function ToolCanvas({ state, canvasRef, onCopy }: ToolCanvasProps) {
         </div>
       )}
 
-      {/* Input area — rendered as a <pre> block for read-only display */}
+          {hasCommentIndicator && (
+            <div className="converter-comment-indicator" title="This converter parses configs into structured data, so # comments are not carried over to the output.">
+              <span aria-hidden="true">💡</span> Comments (# …) are not preserved when converting between formats.
+            </div>
+          )}
+
+          {/* Input area — rendered as a <pre> block for read-only display */}
       <div className="converter-pane">
         <div className="converter-pane-header">
           <span className="converter-pane-label">Input ({inputLabel})</span>
