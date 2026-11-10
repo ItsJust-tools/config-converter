@@ -35,6 +35,6 @@
     "@types/react": "^19",
     "react": "^19",
     "tsup": "^8",
-    "typescript": "^6"
+    "typescript": "^7"
   }
 }
