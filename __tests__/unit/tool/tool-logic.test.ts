@@ -138,4 +138,25 @@ describe('ConverterTool deserialize', () => {
     expect(() => JSON.parse(json)).not.toThrow();
     expect(JSON.parse(json)).toMatchObject({ input: 'name: test', inputFormat: 'yaml' });
   });
+
+  it('returns failure result for malformed deserialize input instead of throwing', () => {
+    // Corrupted objects with getters that throw should not crash the client.
+    const poisoned = {
+      get inputFormat(): string {
+        throw new Error('corrupted share file');
+      },
+    };
+    expect(() =>
+      converterTool.deserialize(
+        poisoned as unknown as Parameters<typeof converterTool.deserialize>[0]
+      )
+    ).not.toThrow();
+    const result = converterTool.deserialize(
+      poisoned as unknown as Parameters<typeof converterTool.deserialize>[0]
+    );
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toContain('Failed to deserialize');
+    }
+  });
 });
