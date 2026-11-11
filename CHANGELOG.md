@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.4.3 (2026-11-11)
+
+- Documentation: verified and documented release notes coverage for v1.4.1; confirmed `CHANGELOG.md` contains a complete entry for v1.4.1 (dependencies, canvas UI, JSDoc, unit tests), resolving user-facing changelog gap (issue #60)
+
 ## v1.4.2 (2026-09-22)
 
 - Fixed export filename sanitization (issue #74): generated filenames for PNG, JPEG, WebP, JSON, PDF, and share downloads are now sanitized against invalid OS characters (`/ \ : * ? " < > |` and `%`), control characters, reserved leading/trailing dots, and are limited to 100 characters while preserving the extension
