@@ -9,6 +9,7 @@ export type ConversionFormat = 'yaml' | 'json' | 'toml' | 'auto';
  * @property input - Raw source text to convert.
  * @property output - Last successful conversion result (empty string when no conversion has been performed).
  * @property error - Error message from the last failed conversion (empty on success).
+ * @property errorPosition - Optional 1-based line/column of the parse error in the input.
  * @property minify - When true, produces compact output (no extra whitespace).
  * @property indentSize - Number of spaces per indent level (1–8).
  * @property sortKeys - When true, object keys are sorted alphabetically.
@@ -19,6 +20,7 @@ export interface ConverterState {
   input: string;
   output: string;
   error: string;
+  errorPosition?: { line: number; column: number };
   minify: boolean;
   indentSize: number;
   sortKeys: boolean;

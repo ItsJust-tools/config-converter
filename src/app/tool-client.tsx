@@ -78,7 +78,7 @@ export default function ToolClient() {
   );
 
   const handleConvert = useCallback(() => {
-    const { output, error } = convertConfig(
+    const result = convertConfig(
       tool.state.data.input,
       tool.state.data.inputFormat,
       tool.state.data.outputFormat,
@@ -88,11 +88,12 @@ export default function ToolClient() {
         sortKeys: tool.state.data.sortKeys,
       }
     );
+    const { output, error } = result;
     if (error) {
       showToast(error, 'error');
-      setToolData((prev) => ({ ...prev, output: '', error }));
+      setToolData((prev) => ({ ...prev, output: '', error, errorPosition: result.errorPosition }));
     } else {
-      setToolData((prev) => ({ ...prev, output, error: '' }));
+      setToolData((prev) => ({ ...prev, output, error: '', errorPosition: undefined }));
     }
   }, [tool.state.data, showToast, setToolData]);
 
@@ -234,7 +235,7 @@ export default function ToolClient() {
       queueMicrotask(() => setIsConverting(true));
       autoConvertTimerRef.current = setTimeout(() => {
         setIsConverting(false);
-        const { output, error } = convertConfig(
+        const result = convertConfig(
           tool.state.data.input,
           tool.state.data.inputFormat,
           tool.state.data.outputFormat,
@@ -244,11 +245,17 @@ export default function ToolClient() {
             sortKeys: tool.state.data.sortKeys,
           }
         );
+        const { output, error } = result;
         if (error) {
           showToast(error, 'error');
-          setToolData((prev) => ({ ...prev, output: '', error }));
+          setToolData((prev) => ({
+            ...prev,
+            output: '',
+            error,
+            errorPosition: result.errorPosition,
+          }));
         } else {
-          setToolData((prev) => ({ ...prev, output, error: '' }));
+          setToolData((prev) => ({ ...prev, output, error: '', errorPosition: undefined }));
         }
       }, 300);
     }
