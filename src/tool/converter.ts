@@ -2,6 +2,13 @@ import { load as yamlLoad, dump as yamlDump } from 'js-yaml';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 import type { ConversionFormat } from './types';
 import { YAMLException } from 'js-yaml';
+import {
+  extractErrorPosition,
+  formatPositionSuffix,
+  type ParseErrorPosition,
+} from './error-position';
+
+export type { ParseErrorPosition } from './error-position';
 
 /**
  * Maximum allowed indent size.
@@ -21,6 +28,8 @@ export interface ConversionResult {
   output: string;
   /** Error message if conversion failed, or empty on success. */
   error: string;
+  /** 1-based line/column of the parse error in the input, when available. */
+  errorPosition?: ParseErrorPosition;
 }
 
 /**
@@ -137,9 +146,14 @@ export function convertConfig(
 
     return { output, error: '' };
   } catch (err) {
+    const position = extractErrorPosition(err, input);
     const message = formatParseError(err, resolvedFormat);
     // Try fallback for auto-detect: if the resolved format fails, no need to retry
-    return { output: '', error: `Conversion error: ${message}` };
+    return {
+      output: '',
+      error: `Conversion error: ${message}${formatPositionSuffix(position)}`,
+      errorPosition: position ?? undefined,
+    };
   }
 }
 

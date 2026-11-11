@@ -30,11 +30,7 @@ interface ToolCanvasProps {
  * <ToolCanvas state={state} canvasRef={ref} />
  * ```
  */
-export function ToolCanvas({
-  state,
-  canvasRef,
-  onCopy,
-}: ToolCanvasProps) {
+export function ToolCanvas({ state, canvasRef, onCopy }: ToolCanvasProps) {
   const outputLength = state.output.length;
   const hasInput = state.input.trim().length > 0;
   const detectedFormat =
@@ -47,6 +43,10 @@ export function ToolCanvas({
   // Show a subtle hint when the input contains comments (# …), which are
   // dropped because conversion parses to structured data.
   const hasCommentIndicator = hasInput && /(^|\n)\s*#/.test(state.input);
+
+  // Render input with a visually marked error line when state.errorPosition is present.
+  const errorLine = state.errorPosition?.line ?? null;
+  const inputLines = state.input ? state.input.split('\n') : [];
 
   /** Handle copying the output to clipboard */
   const handleCopyOutput = useCallback(async () => {
@@ -66,24 +66,64 @@ export function ToolCanvas({
         <div className="converter-error" role="alert">
           <span className="converter-error-icon">⚠️</span>
           <span>{state.error}</span>
+          {errorLine != null && (
+            <button
+              type="button"
+              className="converter-error-jump"
+              onClick={() => {
+                const pre = document.getElementById('converter-input-pre');
+                const target = pre?.querySelector<HTMLElement>(`[data-line="${errorLine}"]`);
+                target?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+              }}
+              aria-label={`Jump to error on line ${errorLine}`}
+            >
+              Jump to line {errorLine}
+            </button>
+          )}
         </div>
       )}
 
-          {hasCommentIndicator && (
-            <div className="converter-comment-indicator" title="This converter parses configs into structured data, so # comments are not carried over to the output.">
-              <span aria-hidden="true">💡</span> Comments (# …) are not preserved when converting between formats.
-            </div>
-          )}
+      {hasCommentIndicator && (
+        <div
+          className="converter-comment-indicator"
+          title="This converter parses configs into structured data, so # comments are not carried over to the output."
+        >
+          <span aria-hidden="true">💡</span> Comments (# …) are not preserved when converting
+          between formats.
+        </div>
+      )}
 
-          {/* Input area — rendered as a <pre> block for read-only display */}
+      {/* Input area — rendered as a <pre> block for read-only display */}
       <div className="converter-pane">
         <div className="converter-pane-header">
           <span className="converter-pane-label">Input ({inputLabel})</span>
           <span className="converter-pane-stats">{state.input.length.toLocaleString()} chars</span>
         </div>
         {state.input ? (
-          <pre className="converter-output">
-            <code>{state.input}</code>
+          <pre className="converter-output" id="converter-input-pre">
+            <code>
+              {errorLine != null && errorLine >= 1 && errorLine <= inputLines.length
+                ? inputLines.map((lineText, idx) => {
+                    const n = idx + 1;
+                    const isError = n === errorLine;
+                    return (
+                      <span
+                        key={n}
+                        data-line={n}
+                        className={isError ? 'converter-error-line' : undefined}
+                        aria-current={isError ? 'true' : undefined}
+                      >
+                        <span className="converter-line-number" aria-hidden="true">
+                          {n}
+                        </span>
+                        {lineText}
+                        {isError && ' '}
+                        {'\n'}
+                      </span>
+                    );
+                  })
+                : state.input}
+            </code>
           </pre>
         ) : (
           <div className="converter-empty">
