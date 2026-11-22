@@ -7,8 +7,10 @@
   background: var(--background);
   color: var(--foreground);
   --z-toolbar: 10;
+  /* Backdrop must stay below the mobile sidebar sheet so the sheet's
+     controls remain clickable while the backdrop covers the rest of the app. */
   --z-sidebar: 40;
-  --z-backdrop: 41;
+  --z-backdrop: 30;
   --z-overlay: 100;
 }
 

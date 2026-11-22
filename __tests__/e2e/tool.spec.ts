@@ -67,8 +67,10 @@ test('converts YAML to JSON', async ({ page }) => {
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
 
-  // Wait for output to appear in the <pre> element (not a textarea)
-  const outputArea = page.locator('.converter-output');
+  // Wait for output to appear in the <pre> element (not a textarea).
+  // The input pane also uses the .converter-output class, so scope to the
+  // output testid to keep the locator strict (exactly one element).
+  const outputArea = page.getByTestId('converter-output');
   await expect(outputArea).toContainText(/"name": "test"/);
 });
 
@@ -90,7 +92,7 @@ test('converts JSON to YAML', async ({ page }) => {
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
 
-  const outputArea = page.locator('.converter-output');
+  const outputArea = page.getByTestId('converter-output');
   await expect(outputArea).toContainText(/name: test/);
 });
 
@@ -107,7 +109,7 @@ test('swap formats button works', async ({ page }) => {
   // Convert first so we have content to swap
   const convertButton = page.getByRole('button', { name: /convert/i });
   await convertButton.click();
-  await expect(page.locator('.converter-output')).toBeVisible();
+  await expect(page.getByTestId('converter-output')).toBeVisible();
 
   // Use Ctrl+Shift+S shortcut for swap
   await page.locator('body').press('Control+Shift+s');
